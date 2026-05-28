@@ -1,7 +1,7 @@
 # Pydantic models for request/response validation and serialization
 # Inherit base models to reduce duplication across operations
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 from datetime import datetime
 import uuid
 from typing import Optional
@@ -29,11 +29,9 @@ class UserUpdate(UserBase):
 class UserResponse(UserBase):
     """Schema for GET endpoints - includes DB-generated fields, excludes password"""
 
+    model_config = ConfigDict(from_attributes=True)
     id: uuid.UUID
     created_at: datetime
-
-    class Config:
-        orm_mode = True  # Convert SQLAlchemy ORM objects to JSON
 
 
 class UserLogin(BaseModel):
@@ -53,4 +51,4 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     """Decoded token data from verified JWT"""
 
-    user_id: Optional[str]
+    user_id: Optional[str] = None

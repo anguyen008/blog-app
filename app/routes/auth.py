@@ -16,10 +16,10 @@ def login(
     db: Session = Depends(database.get_db),
 ):
     """Login endpoint - demonstrates: password verification, JWT token generation"""
-    
+
     # Query user by email (username field from form)
     user = db.execute(
-        text("SELECT * FROM users WHERE email == :email"),
+        text("SELECT * FROM users WHERE email = :email"),
         {":email": users_credientials.username},
     ).fetchone()
 
