@@ -51,4 +51,27 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     """Decoded token data from verified JWT"""
 
-    user_id: Optional[str] = None
+    user_id: uuid.UUID
+
+
+class BlogBase(BaseModel):
+    """Shared fields between Create/Response models"""
+
+    title: str
+    tagline: Optional[str] = None
+    about: str
+
+
+class BlogCreate(BlogBase):
+    """Schema for POST /blogs endpoint"""
+
+    pass
+
+
+class BlogResponse(BlogBase):
+    """Schema for GET endpoints - includes DB-generated fields"""
+
+    model_config = ConfigDict(from_attributes=True)
+    blog_id: uuid.UUID
+    created_at: datetime
+    author: UserResponse

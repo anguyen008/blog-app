@@ -4,6 +4,7 @@
 import jwt
 from datetime import datetime, timedelta, timezone
 from typing import Optional
+from uuid import UUID
 from . import schemas
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -25,9 +26,9 @@ def create_access_token(data: dict, expires_delta: int = ACCESS_TOKEN_EXPIRE_MIN
     """
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + timedelta(minutes=expires_delta)
-    to_encode.update({"exp": expire})
+    to_encode.update({"exp": int(expire.timestamp())})  # exp must be a UNIX timestamp
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-
+    print(f"Generated JWT token: {encoded_jwt}")
     return encoded_jwt
 
 
@@ -45,7 +46,7 @@ def verify_access_token(token: str, credentials_exception):
         if user_id is None:
             raise credentials_exception
 
-        token_data = schemas.TokenData(user_id=user_id)
+        token_data = schemas.TokenData(user_id=UUID(user_id))
     except jwt.ExpiredSignatureError:
         raise credentials_exception
     except jwt.InvalidTokenError:

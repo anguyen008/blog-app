@@ -20,14 +20,13 @@ def login(
     # Query user by email (username field from form)
     user = db.execute(
         text("SELECT * FROM users WHERE email = :email"),
-        {":email": users_credientials.username},
+        {"email": users_credientials.username},
     ).fetchone()
-
     if not user:
         raise HTTPException(status_code=403, detail=f"Invalid email or password")
 
     # Verify provided password matches hash in database
-    if not utils.verify_password(users_credientials.password, user.password):
+    if not utils.verify_password(users_credientials.password, user.password_hash):
         raise HTTPException(status_code=403, detail=f"Invalid email or password")
 
     # Create JWT token containing user_id

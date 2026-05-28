@@ -1,8 +1,7 @@
 # User CRUD endpoints
 # Demonstrates: routing, dependency injection, database operations, error handling
 
-from fastapi import Depends, HTTPException, status, Response, FastAPI, APIRouter
-
+from fastapi import Depends, HTTPException, status, Response, APIRouter
 from .. import models, schemas, utils, oauth2
 from sqlalchemy.orm import Session
 from sqlalchemy import text
@@ -101,7 +100,10 @@ def delete_user(
 # Temporarily put request
 @router.put("/{user_id}", response_model=schemas.UserResponse)
 def update_user(
-    user_id: uuid.UUID, user_update: schemas.UserUpdate, db: Session = Depends(get_db)
+    user_id: uuid.UUID,
+    user_update: schemas.UserUpdate,
+    db: Session = Depends(get_db),
+    current_user: schemas.TokenData = Depends(oauth2.get_current_user),
 ):
     """Update user fields - BUG: password not hashed on update! Should use utils.hash_password()"""
     password_hash = utils.hash_password(user_update.password)
@@ -122,5 +124,11 @@ def update_user(
         raise HTTPException(
             status_code=404, detail=f"User with uuid {user_id} not found"
         )
+
+    if str(current_user.user_id) != str(user_id):
+        raise HTTPException(
+            status_code=403, detail=f"Not authorized to update this user"
+        )
+
     db.commit()
     return updated_user

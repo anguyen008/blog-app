@@ -37,26 +37,28 @@ class User(Base):
     )
 
 
-class Blogs(Base):
+class Blog(Base):
     """Blogs table with UUID primary key, foreign key to Users, and timestamps"""
 
     __tablename__ = "blogs"
 
-    id = Column(
+    blog_id = Column(
         UUID(as_uuid=True),
         primary_key=True,
         index=True,
         nullable=False,
         unique=True,
         default=uuid.uuid4,
+        server_default=text("uuidv4()"),
     )
     title = Column(String, index=True, nullable=False)
-    content = Column(String, nullable=False)
+    tagline = Column(String, nullable=True)
+    about = Column(String, nullable=False)
     author_id = Column(
         UUID, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )  # Foreign key to Users
     created_at = Column(
-        TIMESTAMP(timezone=True), nullable=False, default=datetime.now()
+        TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
     updated_at = Column(
         TIMESTAMP(timezone=True),
@@ -65,4 +67,4 @@ class Blogs(Base):
         onupdate=text("now()"),
     )
 
-    author = relationship("Users", backref="blogs")  # ORM relationship to Users
+    author = relationship("User", backref="blogs")  # ORM relationship to Users
