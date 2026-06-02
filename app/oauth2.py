@@ -8,14 +8,15 @@ from uuid import UUID
 from . import schemas
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from .config import settings
 
 # OAuth2 scheme with token URL - tells FastAPI to expect "Authorization: Bearer <token>"
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 # JWT configuration (use environment variables in production)
-SECRET_KEY = "your_secret_key_here"  # Replace with a secure random key in production
-ALGORITHM = "Algorithm"  # Symmetric algorithm: same key signs and verifies
-ACCESS_TOKEN_EXPIRE_MINUTES = 10  # Token expiration time (e.g., 30 minutes)
+SECRET_KEY = settings.secret_key
+ALGORITHM = settings.algorithm
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_expire_minutes
 
 
 def create_access_token(data: dict, expires_delta: int = ACCESS_TOKEN_EXPIRE_MINUTES):

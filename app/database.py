@@ -3,11 +3,11 @@
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-import os
+from .config import settings
 
 # Database URL format: dialect+driver://user:password@host:port/database
 # Load credentials from environment variables in production
-SQLALCHEMY_DATABASE_URL = "DB_URL"
+SQLALCHEMY_DATABASE_URL = f"postgresql+psycopg://{settings.database_user}:{settings.database_password}@{settings.database_host}:{settings.database_port}/{settings.database_name}"
 
 # Engine manages connection pooling and SQL execution
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
