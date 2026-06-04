@@ -13,7 +13,7 @@ SQLALCHEMY_DATABASE_URL = f"postgresql+psycopg://{settings.database_user}:{setti
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
 # Session factory creates DB sessions for each request
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(autoflush=False, bind=engine)
 
 # Base class for all ORM models
 Base = declarative_base()

@@ -30,6 +30,6 @@ def login(
         raise HTTPException(status_code=403, detail=f"Invalid email or password")
 
     # Create JWT token containing user_id
-    access_token = oauth2.create_access_token(data={"user_id": str(user.id)})
+    access_token = oauth2.create_access_token(data={"user_id": str(user.user_id)})
 
     return {"access_token": access_token, "token_type": "bearer"}

@@ -16,7 +16,7 @@ class User(Base):
     __tablename__ = "users"
 
     # UUID better than auto-increment: doesn't reveal record count, safer for distributed systems
-    id = Column(
+    user_id = Column(
         UUID(as_uuid=True),
         primary_key=True,
         index=True,
@@ -55,7 +55,7 @@ class Blog(Base):
     tagline = Column(String, nullable=True)
     about = Column(String, nullable=False)
     author_id = Column(
-        UUID, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        UUID, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False
     )  # Foreign key to Users
     created_at = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
@@ -68,3 +68,36 @@ class Blog(Base):
     )
 
     author = relationship("User", backref="blogs")  # ORM relationship to Users
+
+
+class Post(Base):
+    """Posts table with UUID primary key, foreign key to Blogs, and timestamps"""
+
+    __tablename__ = "posts"
+
+    post_id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        index=True,
+        nullable=False,
+        unique=True,
+        default=uuid.uuid4,
+        server_default=text("uuidv4()"),
+    )
+    title = Column(String, index=True, nullable=False)
+    content = Column(String, nullable=False)
+    published = Column(String, nullable=False, default="false")
+    blog_id = Column(
+        UUID, ForeignKey("blogs.blog_id", ondelete="CASCADE"), nullable=False
+    )  # Foreign key to Blogs
+    created_at = Column(
+        TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
+    )
+    updated_at = Column(
+        TIMESTAMP(timezone=True),
+        nullable=False,
+        server_default=text("now()"),
+        onupdate=text("now()"),
+    )
+
+    blog = relationship("Blog", backref="posts")  # ORM relationship to Blogs

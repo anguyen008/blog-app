@@ -30,7 +30,7 @@ class UserResponse(UserBase):
     """Schema for GET endpoints - includes DB-generated fields, excludes password"""
 
     model_config = ConfigDict(from_attributes=True)
-    id: uuid.UUID
+    user_id: uuid.UUID
     created_at: datetime
 
 
@@ -75,3 +75,26 @@ class BlogResponse(BlogBase):
     blog_id: uuid.UUID
     created_at: datetime
     author: UserResponse
+
+
+class PostBase(BaseModel):
+    """Shared fields between Create/Response models"""
+
+    title: str
+    content: str
+    published: bool = False
+
+
+class PostCreate(PostBase):
+    """Schema for POST /posts endpoint"""
+
+    pass
+
+
+class PostResponse(PostBase):
+    """Schema for GET endpoints - includes DB-generated fields"""
+
+    model_config = ConfigDict(from_attributes=True)
+    created_at: datetime
+    post_id: uuid.UUID
+    blog: BlogResponse

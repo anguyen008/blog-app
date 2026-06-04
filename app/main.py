@@ -1,7 +1,6 @@
 from fastapi import FastAPI
-
 from . import models
-from .routes import users, auth, blogs
+from .routes import users, auth, blogs, posts
 from .database import engine
 
 # Initialize FastAPI app (auto-generates OpenAPI docs at /docs)
@@ -14,6 +13,7 @@ models.Base.metadata.create_all(bind=engine)
 app.include_router(users.router)
 app.include_router(auth.router)
 app.include_router(blogs.router)
+app.include_router(posts.router)
 
 
 @app.get("/")
