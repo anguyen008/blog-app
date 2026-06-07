@@ -28,16 +28,19 @@ export const AuthProvider = ({children}) => {
             localStorage.removeItem("token", token)
     }, [token]);
 
-    const register = async (name, email, password)=> {
-        await registerUser(name, email, password);
-        login(email, password);
+    const register = async ({name, email, password})=> {
+        await registerUser({name, email, password});
+        login(email, password)
 
        
         
     };
 
     const login = async (email, password ) => {
-        const response = await loginUser(email, password);
+        console.log(email)
+        console.log(password)
+        const response = await loginUser({email, password});
+        console.log(response)
         const token =  response.data.access_token
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`        
         localStorage.setItem("token", token);

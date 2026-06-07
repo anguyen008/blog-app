@@ -22,6 +22,7 @@ export default function App() {
   // Track currently logged-in user
   const [user, setUser] = useState(null);
   // Track active page/route
+  const [page, setPage] = useState("/")
   // Store route parameters (e.g., blogId, postId)
   const [pageParams, setPageParams] = useState({});
 

@@ -11,7 +11,7 @@ import { Brand } from "../components/UI";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function RegisterPage() {
-  const { register } = useAuth();
+  const {login, register } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
@@ -33,7 +33,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await register(form);
-      navigate("/dashboard")
+      navigate("/setup-blog")
     } catch (err) {
         setError(err.response?.data?.detail);
     } finally {
