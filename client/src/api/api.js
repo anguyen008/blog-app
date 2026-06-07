@@ -33,7 +33,11 @@ function register({ name, email, password }) {
 export { register };
 
 function login({ email, password }) {
-  return axios.post(`${backendUrl}/login`, { email, password })
+  const data = new URLSearchParams();
+  data.append('username', email);
+  data.append('password', password);
+  console.log("Logging in with data:", data);
+  return axios.post(`${backendUrl}/login`, data)
     .then(response => response.data)
     .catch(error => {
       throw error;

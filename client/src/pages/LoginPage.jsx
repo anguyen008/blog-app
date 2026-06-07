@@ -17,7 +17,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   // Helper to update form field values
-  function set(k) { return e => setForm(f => ({ ...f, [k]: e.target.value })); }
+  function update(k) { return e => setForm(f => ({ ...f, [k]: e.target.value })); }
 
   /**
    * Handle login form submission
@@ -28,7 +28,7 @@ export default function LoginPage() {
     setError("");
     if (!form.email || !form.password) { setError("Please fill in all fields."); return; }
     setLoading(true);
-    try {
+    try {    
       const { user } = await api.login(form);
       login(user);
     } catch (err) {
@@ -51,11 +51,11 @@ export default function LoginPage() {
             <div className="auth-fields">
               <div className="field">
                 <label htmlFor="login-email">Email</label>
-                <input id="login-email" type="email" placeholder="you@example.com" value={form.email} onChange={set("email")} autoFocus />
+                <input id="login-email" type="email" placeholder="you@example.com" value={form.email} onChange={update("email")} autoFocus />
               </div>
               <div className="field">
                 <label htmlFor="login-pw">Password</label>
-                <input id="login-pw" type="password" placeholder="••••••••" value={form.password} onChange={set("password")} />
+                <input id="login-pw" type="password" placeholder="••••••••" value={form.password} onChange={update("password")} />
               </div>
             </div>
             <button className="btn primary" type="submit" disabled={loading} style={{ width: "100%", justifyContent: "center", padding: "10px" }}>
