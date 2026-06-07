@@ -1,0 +1,22 @@
+/**
+ * main.jsx - Application Entry Point
+ * 
+ * Initializes the React application by:
+ * - Creating the root DOM node
+ * - Rendering the main App component
+ * - Adding the ToastContainer for notifications
+ * - Wrapping in StrictMode for development warnings
+ */
+
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.jsx'
+import { ToastContainer } from './components/UI.jsx'
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <App />
+    <ToastContainer />
+  </StrictMode>,
+)
