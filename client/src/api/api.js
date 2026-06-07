@@ -1,8 +1,9 @@
 // api/api.js
 // ─────────────────────────────────────────────
-// All functions mirror a REST backend.
-// Replace the mock implementations with real
-// fetch() calls to your API endpoints.
+// API utility functions for frontend to interact with backend
+// Includes user registration, login, and data fetching
+// Note: In a production app, you would want to handle authentication tokens,
+// error handling, and other API interactions more robustly.
 // ─────────────────────────────────────────────
 
 import React, { useEffect, useState } from 'react';

@@ -41,8 +41,13 @@ export default function App() {
    */
   function login(userData) {
     setUser(userData);
+    if (!userData.blog) {
+      navigate("setup");
+      
+    }
     // Route new users to blog setup, existing users to dashboard
-    navigate("dashboard");
+    else
+      navigate("dashboard");
   }
 
   /**
