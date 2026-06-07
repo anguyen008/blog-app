@@ -25,7 +25,7 @@ export default function SetupPage() {
    * Creates initial blog and updates user context
    * Routes to dashboard on success
    */
-  async function submit(e) {
+  async function handleBlogCreation(e) {
     e.preventDefault();
     setError("");
     if (!form.name.trim()) { setError("Please give your blog a name."); return; }
@@ -54,7 +54,7 @@ export default function SetupPage() {
           <h1 className="setup-title">Set up your blog</h1>
           <p className="setup-sub">You can always change these later. Give readers a sense of what you write about.</p>
           {error && <div className="error-banner" style={{ marginBottom: 20 }}>{error}</div>}
-          <form onSubmit={submit}>
+          <form onSubmit={handleBlogCreation}>
             <div className="setup-fields">
               <div className="field">
                 <label htmlFor="setup-name">Blog name <span style={{ color: "var(--accent)" }}>*</span></label>

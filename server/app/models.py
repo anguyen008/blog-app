@@ -53,7 +53,7 @@ class Blog(Base):
     )
     title = Column(String, index=True, nullable=False)
     tagline = Column(String, nullable=True)
-    about = Column(String, nullable=False)
+    about = Column(String, nullable=True)
     author_id = Column(
         UUID, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False
     )  # Foreign key to Users

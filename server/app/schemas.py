@@ -4,7 +4,6 @@
 from pydantic import BaseModel, EmailStr, ConfigDict
 from datetime import datetime
 import uuid
-from typing import Optional
 
 
 class UserBase(BaseModel):
@@ -58,8 +57,8 @@ class BlogBase(BaseModel):
     """Shared fields between Create/Response models"""
 
     title: str
-    tagline: Optional[str] = None
-    about: str
+    tagline: str | None = None
+    about: str | None = None
 
 
 class BlogCreate(BlogBase):

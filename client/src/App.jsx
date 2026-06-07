@@ -9,19 +9,19 @@
  */
 
 import { useState } from "react";
-import AuthContext from "./context/AuthContext";
+import {AuthProvider, useAuth} from "./context/AuthContext";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import SetupPage from "./pages/SetupPage";
 import DashboardPage from "./pages/DashboardPage";
 import EditorPage from "./pages/EditorPage";
 import BlogSettingsPage from "./pages/BlogSettingsPage";
+import {Routes, Route} from "react-router-dom"
 
 export default function App() {
   // Track currently logged-in user
   const [user, setUser] = useState(null);
   // Track active page/route
-  const [page, setPage] = useState("login");
   // Store route parameters (e.g., blogId, postId)
   const [pageParams, setPageParams] = useState({});
 
@@ -59,15 +59,18 @@ export default function App() {
   }
 
   return (
-    <AuthContext.Provider value={{ user, setUser, login, logout, navigate, pageParams }}>
+    <AuthProvider>
       <div className="app-root">
-        {page === "login" && <LoginPage />}
-        {page === "register" && <RegisterPage />}
-        {page === "setup" && <SetupPage />}
-        {page === "dashboard" && <DashboardPage blogId={pageParams.blogId} />}
+        <Routes>
+        <Route path = "/" element={<LoginPage/>}/>
+        <Route path = "/login" element={<LoginPage/>}/>
+        <Route path = "/sign-up" element={<RegisterPage/>}/>
+        <Route path = "/setup-blog" element={<SetupPage/>}/>
+        <Route path = "/dashboard" element={<DashboardPage blogId={pageParams.blogId}/>}/>
         {page === "editor" && <EditorPage postId={pageParams.postId} blogId={pageParams.blogId} />}
         {page === "blog-settings" && <BlogSettingsPage blogId={pageParams.blogId} />}
+      </Routes>
       </div>
-    </AuthContext.Provider>
+    </AuthProvider>
   );
 }
