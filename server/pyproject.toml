@@ -1,0 +1,11 @@
+[project]
+name = "server"
+version = "0.1.0"
+description = "Backend for full-stack app with FastAPI, PostgreSQL, and SQLAlchemy"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi[standard]>=0.136.1",
+    "psycopg[binary]>=3.3.4",
+    "python-dotenv>=1.2.2",
+    "sqlalchemy>=2.0.49",
+]
