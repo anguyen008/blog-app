@@ -8,10 +8,11 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Brand } from "../components/UI";
-import { register } from "../api/api";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function RegisterPage() {
-  const { login, navigate } = useAuth();
+  const { register } = useAuth();
+  const navigate = useNavigate();
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -31,10 +32,10 @@ export default function RegisterPage() {
     if (form.password.length < 6) { setError("Password must be at least 6 characters."); return; }
     setLoading(true);
     try {
-      const { user } = await register(form);
-      login({ ...user, blog: null });
+      await register(form);
+      navigate("/dashboard")
     } catch (err) {
-      setError(err.response.data.detail);
+        setError(err.response?.data?.detail);
     } finally {
       setLoading(false);
     }
@@ -68,7 +69,7 @@ export default function RegisterPage() {
               {loading ? "Creating account…" : "Create account"}
             </button>
           </form>
-          <p className="auth-foot">Already have one? <a onClick={() => navigate("login")}>Sign in</a></p>
+          <p className="auth-foot">Already have one? <Link to="/login">Sign in</Link></p>
         </div>
       </main>
     </>

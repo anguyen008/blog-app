@@ -8,10 +8,11 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Brand } from "../components/UI";
-import * as api from "../api/api";
+import {Link, useNavigate} from "react-router-dom"
 
 export default function LoginPage() {
-  const {login, navigate } = useAuth();
+  const { login } = useAuth();
+  const navigate = useNavigate()
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -29,8 +30,8 @@ export default function LoginPage() {
     if (!form.email || !form.password) { setError("Please fill in all fields."); return; }
     setLoading(true);
     try {    
-      const { user } = await api.login(form);
-      login(user);
+      await login(form)
+      navigate("/dashboard")
     } catch (err) {
       setError(err.message);
     } finally {
@@ -62,7 +63,7 @@ export default function LoginPage() {
               {loading ? "Signing in…" : "Sign in"}
             </button>
           </form>
-          <p className="auth-foot">No account? <a onClick={() => navigate("register")}>Create one</a></p>
+          <p className="auth-foot">No account? <Link to="/sign-up">Create one</Link></p>
         </div>
       </main>
     </>

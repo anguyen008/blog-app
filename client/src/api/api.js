@@ -5,8 +5,6 @@
 // Note: In a production app, you would want to handle authentication tokens,
 // error handling, and other API interactions more robustly.
 // ─────────────────────────────────────────────
-
-import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
 // Base URL for backend API (env variable or hardcoded for development)
@@ -23,25 +21,38 @@ function fetchData() {
 
 export { fetchData };
 
-function register({ name, email, password }) {
-  return axios.post(`${backendUrl}/users`, { name, email, password })
-    .then(response => response.data)
+async function loginUser({ email, password }) {
+  const formData = new URLSearchParams({ username: email, password })
+  try {
+    const response = await axios.post(`${backendUrl}/login`, formData, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    });
+    return response
+  } catch (error) {
+    throw error;
+  }
+}
+
+export { loginUser };
+
+
+async function registerUser({ name, email, password }) {
+  return await axios.post(`${backendUrl}/users`, { name, email, password })
     .catch(error => {
       throw error;
 
     });
 }
-export { register };
 
-function login({ email, password }) {
-  const data = new URLSearchParams();
-  data.append('username', email);
-  data.append('password', password);
-  console.log("Logging in with data:", data);
-  return axios.post(`${backendUrl}/login`, data)
+export { registerUser };
+
+function createBlog({ title, tagline, about }) {
+  return axios.post(`${backendUrl}/blogs`, { title, tagline, about })
     .then(response => response.data)
     .catch(error => {
       throw error;
     });
 }
-export { login };
+
+export { createBlog };
+
