@@ -1,10 +1,7 @@
 # SQLAlchemy ORM models representing database tables
-
-from datetime import datetime
-
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, column_property
 from .database import Base
-from sqlalchemy import Column, ForeignKey, String, UUID, text
+from sqlalchemy import Column, ForeignKey, String, UUID, text, func, select
 import uuid
 from sqlalchemy.sql.sqltypes import TIMESTAMP
 from sqlalchemy.dialects.postgresql import UUID
@@ -101,3 +98,11 @@ class Post(Base):
     )
 
     blog = relationship("Blog", backref="posts")  # ORM relationship to Blogs
+
+
+Blog.number_of_posts = column_property(
+    select(func.count(Post.post_id))
+    .where(Post.blog_id == Blog.blog_id)
+    .correlate_except(Post)
+    .scalar_subquery()
+)

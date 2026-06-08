@@ -11,50 +11,70 @@
  */
 
 import { createContext, useState, useEffect, useContext } from "react";
-import {registerUser, loginUser} from "../api/api"
+import {registerUser, loginUser, getUserId, getUserInfo} from "../api/api"
 import axios from "axios";
 
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({children}) => {
-    const [token, setToken] = useState(localStorage.getItem("token"));
+    const [token, setToken] = useState(sessionStorage.getItem("token"));
+    const [user, setUser] = useState(null)
+    const [loading, setLoading] = useState(true)
 
-    useEffect(() => {
-        if (token){
-            localStorage.setItem("token", token);
+useEffect(() => {
+    const restoreUser = async () => {
+        if (!token) {
+            setLoading(false)
+            return;
         }
-        else
-            localStorage.removeItem("token", token)
-    }, [token]);
+        try {
+            const response  = await getUserId(token); // this verifies the token
+            const getUser = await getUserInfo(response.user_id)
+            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`
+            setUser(getUser);
+            
+        } catch(error) {
+            //  if token is invalid, expired, or tampered this runs
+            sessionStorage.removeItem("token");
+            setToken(null);
+            setUser(null);
+        }
+        finally{
+            setLoading(false)
+        }
+    };
+    restoreUser();
+
+}, []);
+
 
     const register = async ({name, email, password})=> {
         await registerUser({name, email, password});
-        login(email, password)
-
-       
+        await login(email, password) 
         
     };
 
     const login = async (email, password ) => {
-        console.log(email)
-        console.log(password)
         const response = await loginUser({email, password});
-        console.log(response)
-        const token =  response.data.access_token
+        const token =  response.access_token
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`        
-        localStorage.setItem("token", token);
+        sessionStorage.setItem("token", token);
         setToken(token);
+        const userid = await getUserId(token)
+        const getUser = await getUserInfo(userid.user_id)
+        setUser(getUser)
 
     }
 
     const logout = () => {
-        localStorage.removeItem("token");
+        sessionStorage.removeItem("token");
         setToken(null);
+        
     }
     return(
         
-        <AuthContext.Provider value={{token, register, login, logout}}>
+        <AuthContext.Provider value={{user, token, loading, register, login, logout}}>
         {children}
         </AuthContext.Provider>
     );

@@ -17,6 +17,7 @@ import DashboardPage from "./pages/DashboardPage";
 import EditorPage from "./pages/EditorPage";
 import BlogSettingsPage from "./pages/BlogSettingsPage";
 import {Routes, Route} from "react-router-dom"
+import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
   // Track currently logged-in user
@@ -67,9 +68,11 @@ export default function App() {
         <Route path = "/login" element={<LoginPage/>}/>
         <Route path = "/sign-up" element={<RegisterPage/>}/>
         <Route path = "/setup-blog" element={<SetupPage/>}/>
-        <Route path = "/dashboard" element={<DashboardPage blogId={pageParams.blogId}/>}/>
+        <Route path = "/dashboard" element={<ProtectedRoute><DashboardPage blogId={pageParams.blogId}/></ProtectedRoute>}/>
+
         {page === "editor" && <EditorPage postId={pageParams.postId} blogId={pageParams.blogId} />}
         {page === "blog-settings" && <BlogSettingsPage blogId={pageParams.blogId} />}
+
       </Routes>
       </div>
     </AuthProvider>

@@ -17,6 +17,20 @@ def get_blogs(db: Session = Depends(get_db)):
     return blogs
 
 
+@router.get("/{user_id}", response_model=List[schemas.BlogResponse])
+def get_user_blogs(
+    user_id=uuid.UUID,
+    db: Session = Depends(get_db),
+):
+    """Retrieve all blogs by user id"""
+    blogs = db.query(models.Blog).filter(models.Blog.author_id == user_id).all()
+    if blogs is None:
+        raise HTTPException(
+            status_code=404, detail=f"Blogs with uuid {user_id} not found"
+        )
+    return blogs
+
+
 @router.get("/{blog_id}", response_model=schemas.BlogResponse)
 def read_blog(
     blog_id: uuid.UUID,

@@ -30,10 +30,10 @@ export default function LoginPage() {
     if (!form.email || !form.password) { setError("Please fill in all fields."); return; }
     setLoading(true);
     try {    
-      await login(form)
-      navigate("/dashboard")
+      await login(form.email, form.password);
+      navigate("/dashboard");
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Cannot find account");
     } finally {
       setLoading(false);
     }

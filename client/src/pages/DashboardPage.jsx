@@ -14,6 +14,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Topbar, Brand, Icons, ConfirmModal, showToast, Spinner } from "../components/UI";
 import * as api from "../api/api";
+import { useNavigate, Link, Navigate } from "react-router-dom";
 
 /**
  * Utility: Format ISO date to readable format (e.g., "Jan 15, 2024")
@@ -44,16 +45,13 @@ function Avatar({ name, size = 34 }) {
  * Displays blog list, current selection, and navigation options
  */
 function Sidebar({ blogs, activeBlogId, panel, onSelectBlog, onPanel, onNewBlog }) {
-  const { logout, navigate } = useAuth();
-  const activeBlog = blogs.find(b => b.id === activeBlogId);
+  const { logout } = useAuth();
+  const navigate = useNavigate()
+  const activeBlog = blogs.find(b => b.blog_id === activeBlogId);
+
 
   return (
     <nav className="sidebar">
-      <div className = "sidebar-section">Home</div>
-
-
-      <div className = "sidebar-section">Followed Blogs</div>
-
       <div className="sidebar-section">My Blogs</div>
       <div className={`sidebar-item ${!activeBlogId && panel === "blogs" ? "active" : ""}`} onClick={() => { onSelectBlog(null); onPanel("blogs"); }}>
         {Icons.grid} All blogs
@@ -65,7 +63,7 @@ function Sidebar({ blogs, activeBlogId, panel, onSelectBlog, onPanel, onNewBlog 
       {activeBlog && (
         <>
           <div className="sidebar-divider" />
-          <div className="sidebar-blog-name" title={activeBlog.name}>{activeBlog.name}</div>
+          <div className="sidebar-blog-name" title={activeBlog.title}>{activeBlog.name}</div>
           <div className={`sidebar-item ${panel === "posts" ? "active" : ""}`} onClick={() => onPanel("posts")}>
             {Icons.file} Posts
           </div>
@@ -77,7 +75,7 @@ function Sidebar({ blogs, activeBlogId, panel, onSelectBlog, onPanel, onNewBlog 
 
       <div style={{ flex: 1 }} />
       <div className="sidebar-divider" />
-      <div className="sidebar-item" onClick={logout}>
+      <div className="sidebar-item" onClick={() => { logout; navigate("/") }}>
         {Icons.logout} Sign out
       </div>
     </nav>
@@ -89,32 +87,35 @@ function Sidebar({ blogs, activeBlogId, panel, onSelectBlog, onPanel, onNewBlog 
  * Shows blog cards with metadata and delete option
  */
 function BlogsPanel({ blogs, postCounts, onSelectBlog, onNewBlog, onDeleteBlog }) {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
 
   return (
+
     <div className="blogs-page fade-up">
+      <button onClick={() => console.log(blogs)}>Test</button>
       <div className="blogs-header">
         <div className="blogs-header-left">
           <h1>Your blogs</h1>
           <p>Hello, {user.name}. What are you writing today?</p>
         </div>
-       
+
       </div>
       <div className="blogs-grid">
         {blogs.map(b => (
-          <div key={b.id} className="blog-card" onClick={() => onSelectBlog(b.id)}>
-            <div className="blog-card-name">{b.name}</div>
+
+          <div key={b.blog_id} className="blog-card" onClick={() => onSelectBlog(b.blog_id)}>
+            <div className="blog-card-name">{b.title}</div>
             {b.tagline && <div className="blog-card-tag">{b.tagline}</div>}
             <div className="blog-card-meta">
-              <span>{postCounts[b.id] ?? 0} posts</span>
+              <span>{postCounts[b.blog_id] ?? 0} posts</span>
               <span>·</span>
-              <span>Created {formatDate(b.createdAt)}</span>
+              <span>Created {formatDate(b.created_at)}</span>
               <div style={{ flex: 1 }} />
               <button
                 className="btn ghost sm icon-only"
                 onClick={e => { e.stopPropagation(); onDeleteBlog(b); }}
-                title="Delete blog"
-              >{Icons.trash}</button>
+                title="Edit and Delete Blog"
+              >{Icons.more}</button>
             </div>
           </div>
         ))}
@@ -132,6 +133,7 @@ function BlogsPanel({ blogs, postCounts, onSelectBlog, onNewBlog, onDeleteBlog }
  * Displays post rows with edit/delete options and empty state
  */
 function PostsPanel({ blog, onEdit, onNewPost, navigate }) {
+  const { user, token } = useAuth();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
@@ -140,8 +142,8 @@ function PostsPanel({ blog, onEdit, onNewPost, navigate }) {
   // Load posts when blog selection changes
   useEffect(() => {
     setLoading(true);
-    api.getPosts(blog.id).then(setPosts).finally(() => setLoading(false));
-  }, [blog.id]);
+    api.getBlogPosts(blog.blog_id).then(setPosts).finally(() => setLoading(false));
+  }, [blog.blog_id]);
 
   async function handleDelete(post) {
     setConfirm(null);
@@ -167,7 +169,7 @@ function PostsPanel({ blog, onEdit, onNewPost, navigate }) {
       <div>
         <div className="posts-header">
           <div className="posts-header-left">
-            <h2>{blog.name}</h2>
+            <h2>{blog.title}</h2>
             {blog.tagline && <p>{blog.tagline}</p>}
           </div>
           <button className="btn primary" onClick={onNewPost}>{Icons.pen} Write</button>
@@ -225,7 +227,7 @@ function NewBlogModal({ userId, onCreated, onClose }) {
     if (!form.name.trim()) { setError("Blog name is required."); return; }
     setLoading(true);
     try {
-      const blog = await api.createBlog({ userId, ...form });
+      const blog = await api.createBlog({ title: form.name, tagline: form.tagline, about: form.about });
       onCreated(blog);
     } catch (err) {
       setError(err.message);
@@ -270,7 +272,7 @@ function NewBlogModal({ userId, onCreated, onClose }) {
  * Allows updating blog name, tagline, about; with danger zone for deletion
  */
 function BlogSettingsPanel({ blog, onUpdated, onDeleted }) {
-  const [form, setForm] = useState({ name: blog.name, tagline: blog.tagline || "", about: blog.about || "" });
+  const [form, setForm] = useState({ name: blog.title, tagline: blog.tagline || "", about: blog.about || "" });
   const [saving, setSaving] = useState(false);
   const [confirm, setConfirm] = useState(false);
 
@@ -306,7 +308,7 @@ function BlogSettingsPanel({ blog, onUpdated, onDeleted }) {
       {confirm && (
         <ConfirmModal
           title="Delete this blog?"
-          message={`All posts in "${blog.name}" will be permanently deleted. This cannot be undone.`}
+          message={`All posts in "${blog.title}" will be permanently deleted. This cannot be undone.`}
           confirmLabel="Delete blog"
           danger
           onConfirm={doDelete}
@@ -341,42 +343,45 @@ function BlogSettingsPanel({ blog, onUpdated, onDeleted }) {
  * Manages dashboard state and renders appropriate panel based on selection
  */
 export default function DashboardPage({ blogId: initialBlogId }) {
-  const { user, navigate } = useAuth();
+  const { user, token } = useAuth();
   const [blogs, setBlogs] = useState([]);
   const [postCounts, setPostCounts] = useState({});
-  const [loadingBlogs, setLoadingBlogs] = useState(true);
+  const [loadingBlogs, setLoadingBlogs] = useState(false);
   const [activeBlogId, setActiveBlogId] = useState(initialBlogId || null);
   const [panel, setPanel] = useState(initialBlogId ? "posts" : "blogs");
   const [showNewBlog, setShowNewBlog] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const navigate = useNavigate()
 
-  const activeBlog = blogs.find(b => b.id === activeBlogId);
-
-  useEffect(() => {
-    api.getBlogs(user.id).then(async bl => {
-      setBlogs(bl);
-      // fetch post counts
-      const counts = {};
-      await Promise.all(bl.map(b => api.getPosts(b.id).then(posts => { counts[b.id] = posts.length; })));
-      setPostCounts(counts);
-      // auto-select first blog if user has exactly one
-      if (bl.length === 1 && !initialBlogId) {
-        setActiveBlogId(bl[0].id);
-        setPanel("posts");
-      }
-    }).finally(() => setLoadingBlogs(false));
-  }, [user.id]);
+  const activeBlog = blogs.find(b => b.blog_id === activeBlogId);
 
   function selectBlog(id) {
     setActiveBlogId(id);
     setPanel(id ? "posts" : "blogs");
   }
 
-  function blogCreated(blog) {
+  useEffect(() => {
+    async function getAllBlogs() {
+      if (!user?.user_id) return;
+      try {
+        setLoadingBlogs(true);
+        const userBlogs = await api.getUserBlogs(user.user_id);
+        setBlogs(userBlogs);
+      } catch (err) {
+        console.log("error fetching blogs:", err);
+      } finally {
+        setLoadingBlogs(false);
+      }
+    }
+    getAllBlogs();
+  }, [user]);
+
+
+  async function blogCreated(blog) {
     setBlogs(b => [...b, blog]);
-    setPostCounts(c => ({ ...c, [blog.id]: 0 }));
+    setPostCounts(c => ({ ...c, [blog.blog_id]: 0 }));
     setShowNewBlog(false);
-    setActiveBlogId(blog.id);
+    setActiveBlogId(blog.blog_id);
     setPanel("posts");
     showToast("Blog created!", "success");
   }
@@ -400,7 +405,7 @@ export default function DashboardPage({ blogId: initialBlogId }) {
 
   return (
     <>
-      {showNewBlog && <NewBlogModal userId={user.id} onCreated={blogCreated} onClose={() => setShowNewBlog(false)} />}
+      {showNewBlog && <NewBlogModal userId={user} onCreated={blogCreated} onClose={() => setShowNewBlog(false)} />}
       {deleteConfirm && (
         <ConfirmModal
           title="Delete this blog?"
@@ -447,12 +452,7 @@ export default function DashboardPage({ blogId: initialBlogId }) {
                 />
               )}
               {panel === "posts" && activeBlog && (
-                <PostsPanel
-                  blog={activeBlog}
-                  onEdit={postId => navigate("editor", { postId, blogId: activeBlog.id })}
-                  onNewPost={() => navigate("editor", { blogId: activeBlog.id })}
-                  navigate={navigate}
-                />
+                console.log("Post Panel")
               )}
               {panel === "blog-settings" && activeBlog && (
                 <BlogSettingsPanel

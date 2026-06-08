@@ -564,7 +564,16 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 16px;
+  width: calc(100vw - 260px);
+  padding: clamp(12px, 2vw, 24px);
+  box-sizing: border-box;
 }
+@media (min-width: 1280px) {
+  .blogs-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
 .blog-card {
   background: #f0e6c6;
   border-radius: var(--radius-lg);

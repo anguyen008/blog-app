@@ -33,3 +33,8 @@ def login(
     access_token = oauth2.create_access_token(data={"user_id": str(user.user_id)})
 
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.get("/verify-user/")
+def verfiy_user(current_user: schemas.TokenData = Depends(oauth2.get_current_user)):
+    return current_user

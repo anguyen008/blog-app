@@ -11,10 +11,10 @@ from typing import List
 router = APIRouter(prefix="/posts", tags=["Posts"])
 
 
-@router.get("/", response_model=List[schemas.PostResponse])
-def get_posts(db: Session = Depends(get_db)):
-    """Retrieve all posts. Demonstrates: ORM query, response model serialization"""
-    posts = db.query(models.Post).all()
+@router.get("/{blog_id}", response_model=List[schemas.PostResponse])
+def get_posts(blog_id: uuid.UUID, db: Session = Depends(get_db)):
+    """Retrieve all posts of a blog. Demonstrates: ORM query, response model serialization"""
+    posts = db.query(models.Post).filter(models.Post.blog_id == blog_id).all()
 
     return posts
 
@@ -106,9 +106,13 @@ def update_post(
 
     post = db.query(models.Post).filter(models.Post.post_id == post_id).first()
     if not post or not post.blog:
-        raise HTTPException(status_code=404, detail=f"Post with uuid {post_id} not found")
+        raise HTTPException(
+            status_code=404, detail=f"Post with uuid {post_id} not found"
+        )
     if str(post.blog.author_id) != str(current_user.user_id):
-        raise HTTPException(status_code=403, detail="Not authorized to update this post")
+        raise HTTPException(
+            status_code=403, detail="Not authorized to update this post"
+        )
 
     update_query = db.execute(
         text("""

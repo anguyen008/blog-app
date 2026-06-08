@@ -28,13 +28,12 @@ def read_user(
 ):
     """Retrieve specific user by ID. Demonstrates ORM query"""
 
-    user = db.query(models.User).filter(models.User.id == user_id).first()
+    user = db.query(models.User).filter(models.User.user_id == user_id).first()
 
     if user is None:
         raise HTTPException(
             status_code=404, detail=f"User with uuid {user_id} not found"
         )
-
     return user
 
 
