@@ -128,7 +128,7 @@ def update_blog(
         update(models.Blog)
         .where(models.Blog.blog_id == blog_id)
         .values(**updated_blog.model_dump())
-        .execution_options(synchronize_session="False")
+        .execution_options(synchronize_session=False)
     )
     db.execute(update_query)
     db.commit()

@@ -120,7 +120,7 @@ body {
   transform: scale(0.98);
 }
 .btn.primary {
-  background: var(--accent);
+  background: #bd9150;
   color: #fff;
   border-color: transparent;
   font-weight: 500;
@@ -137,8 +137,8 @@ body {
   color: var(--ink);
 }
 .btn.danger {
-  color: #c0392b;
-  border-color: rgba(192, 57, 43, 0.3);
+  color: #be2716;
+  border-color: rgba(100, 73, 70, 0.3);
 }
 .btn.danger:hover {
   background: #fdf0ef;
@@ -592,6 +592,7 @@ body {
   box-shadow: var(--shadow-lg);
   border-color: var(--border2);
   transform: translateY(-2px);
+  z-index: 10;
 }
 .blog-card-name {
   font-family: var(--ff-display);
@@ -914,4 +915,49 @@ body {
 ::-webkit-scrollbar-thumb {
   background: var(--paper3);
   border-radius: 3px;
+}
+
+.popover-anchor {
+  position: relative;
+}
+
+.popover-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  background: #e4dcc2;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  min-width: 130px;
+  overflow: hidden;
+}
+
+.popover-menu button {
+  display: block;
+  width: 100%;
+  padding: 8px 14px;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.popover-menu button:hover {
+  background: #f1eee5;
+}
+.blog-card-meta {
+  position: relative; /* anchor popovers to the meta row instead */
+}
+
+.popover-anchor {
+  position: static; /* remove this from flow */
+}
+
+.popover-menu {
+  position: absolute;
+  right: -20px;
+  top: calc(85%); /* sits just below the meta row */
+  /* ... rest of your styles */
 }

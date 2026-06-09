@@ -73,13 +73,35 @@ export async function createBlog({ title, tagline, about }) {
       throw error;
     });
   return response.data
-
-
 }
 
+
+export async function deleteBlog(blog_id) {
+  const response = await axios.delete(`${backendUrl}/blogs/${blog_id}`, {
+    withCredentials: true
+  })
+    .catch(error => {
+      throw error;
+    });
+  return response.data
+}
+
+export async function updateBlog(blog_id, { title, tagline, about }) {
+  const response = await axios.put(`${backendUrl}/blogs/${blog_id}`, { title, tagline, about }, {
+    withCredentials: true
+  })
+    .catch(error => {
+      throw error;
+    });
+  return response.data
+}
+
+
+
+
 export async function getBlogPosts(blog_id) {
-  const response = axios.get(`${backendUrl}/${blog_id}`)
-  return response
+  const response = await axios.get(`${backendUrl}/${blog_id}`)
+  return response.data
 
 }
 

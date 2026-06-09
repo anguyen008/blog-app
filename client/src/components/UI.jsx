@@ -106,6 +106,9 @@ export function ConfirmModal({ title, message, confirmLabel = "Confirm", danger 
   );
 }
 
+
+
+
 /**
  * Icons - Collection of inline SVG icons
  * Used throughout the application for UI actions and indicators
@@ -157,8 +160,10 @@ export const Icons = {
     </svg>
   ),
   more: (
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="6" r="1.5" />  <circle cx="12" cy="12" r="1.5" />  <circle cx="12" cy="18" r="1.5" />
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="currentColor">
+        <circle cx="5" cy="12" r="2" />
+        <circle cx="12" cy="12" r="2" />
+        <circle cx="19" cy="12" r="2" />
     </svg>
   ),
 

@@ -10,7 +10,7 @@
  * - Comprehensive sidebar navigation
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef} from "react";
 import { useAuth } from "../context/AuthContext";
 import { Topbar, Brand, Icons, ConfirmModal, showToast, Spinner } from "../components/UI";
 import * as api from "../api/api";
@@ -35,7 +35,7 @@ function Avatar({ name, size = 34 }) {
       width: size, height: size, borderRadius: "50%",
       background: "var(--accent-bg)", color: "var(--accent)",
       display: "flex", alignItems: "center", justifyContent: "center",
-      fontSize: size * 0.35, fontWeight: 500, flexShrink: 0,
+      fontSize: size * 0.5, fontWeight: 600, flexShrink: 0,
     }}>{initials}</div>
   );
 }
@@ -86,13 +86,19 @@ function Sidebar({ blogs, activeBlogId, panel, onSelectBlog, onPanel, onNewBlog 
  * BlogsPanel - Grid view of all user's blogs
  * Shows blog cards with metadata and delete option
  */
-function BlogsPanel({ blogs, postCounts, onSelectBlog, onNewBlog, onDeleteBlog }) {
+function BlogsPanel({ blogs, postCounts, onSelectBlog, onNewBlog, onDeleteBlog, onEditBlog}) {
   const { user, token } = useAuth();
+  const [openPopover, setOpenPopover] = useState(null)
+
+  useEffect(() => {
+  const handleClickOutside = () => setOpenPopover(null);
+  document.addEventListener("click", handleClickOutside);
+  return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
 
   return (
 
     <div className="blogs-page fade-up">
-      <button onClick={() => console.log(blogs)}>Test</button>
       <div className="blogs-header">
         <div className="blogs-header-left">
           <h1>Your blogs</h1>
@@ -103,7 +109,7 @@ function BlogsPanel({ blogs, postCounts, onSelectBlog, onNewBlog, onDeleteBlog }
       <div className="blogs-grid">
         {blogs.map(b => (
 
-          <div key={b.blog_id} className="blog-card" onClick={() => onSelectBlog(b.blog_id)}>
+          <div key={b.blog_id} className="blog-card" style={{zIndex: openPopover === b.blog_id ? 10 : 0}} onClick={() => onSelectBlog(b.blog_id)}>
             <div className="blog-card-name">{b.title}</div>
             {b.tagline && <div className="blog-card-tag">{b.tagline}</div>}
             <div className="blog-card-meta">
@@ -113,11 +119,25 @@ function BlogsPanel({ blogs, postCounts, onSelectBlog, onNewBlog, onDeleteBlog }
               <div style={{ flex: 1 }} />
               <button
                 className="btn ghost sm icon-only"
-                onClick={e => { e.stopPropagation(); onDeleteBlog(b); }}
-                title="Edit and Delete Blog"
+                onClick={e => { e.stopPropagation(); setOpenPopover(openPopover === b.blog_id ? null : b.blog_id);}}
+                title="Edit or Delete Blog"
+                
               >{Icons.more}</button>
+              {openPopover === b.blog_id && (
+                <div className="popover-menu">
+                  <button onClick={(e) => {onSelectBlog(b.blog_id); onEditBlog("blog-settings"); setOpenPopover(null); e.stopPropagation()}}>
+                    Edit
+                  </button>
+                <button onClick={e => {e.stopPropagation(); onDeleteBlog(b); setOpenPopover(null); }}>
+                   Delete
+                </button>
+                </div>
+              )}
             </div>
           </div>
+          
+
+
         ))}
         <div className="blog-card blog-card-new" onClick={onNewBlog}>
           <span style={{ fontSize: 22 }}>+</span>
@@ -271,7 +291,7 @@ function NewBlogModal({ userId, onCreated, onClose }) {
  * BlogSettingsPanel - Edit blog settings and delete option
  * Allows updating blog name, tagline, about; with danger zone for deletion
  */
-function BlogSettingsPanel({ blog, onUpdated, onDeleted }) {
+function BlogSettingsPanel({ blog, onUpdated, onDeleted, onSubmit }) {
   const [form, setForm] = useState({ name: blog.title, tagline: blog.tagline || "", about: blog.about || "" });
   const [saving, setSaving] = useState(false);
   const [confirm, setConfirm] = useState(false);
@@ -286,20 +306,21 @@ function BlogSettingsPanel({ blog, onUpdated, onDeleted }) {
     e.preventDefault();
     setSaving(true);
     try {
-      const updated = await api.updateBlog(blog.id, form);
+      const updated = await api.updateBlog(blog.blog_id, { title: form.name, tagline: form.tagline, about: form.about });
       onUpdated(updated);
       showToast("Blog settings saved", "success");
     } catch (err) {
       showToast(err.message, "error");
     } finally {
       setSaving(false);
+      onSubmit("posts")
     }
   }
 
   async function doDelete() {
     setConfirm(false);
-    await api.deleteBlog(blog.id);
-    onDeleted(blog.id);
+    await api.deleteBlog(blog.blog_id);
+    onDeleted(blog.blog_id);
     showToast("Blog deleted");
   }
 
@@ -308,7 +329,7 @@ function BlogSettingsPanel({ blog, onUpdated, onDeleted }) {
       {confirm && (
         <ConfirmModal
           title="Delete this blog?"
-          message={`All posts in "${blog.title}" will be permanently deleted. This cannot be undone.`}
+          message={`All posts in "${form.name}" will be permanently deleted. This cannot be undone.`}
           confirmLabel="Delete blog"
           danger
           onConfirm={doDelete}
@@ -378,6 +399,7 @@ export default function DashboardPage({ blogId: initialBlogId }) {
 
 
   async function blogCreated(blog) {
+    
     setBlogs(b => [...b, blog]);
     setPostCounts(c => ({ ...c, [blog.blog_id]: 0 }));
     setShowNewBlog(false);
@@ -387,32 +409,33 @@ export default function DashboardPage({ blogId: initialBlogId }) {
   }
 
   function blogUpdated(updated) {
-    setBlogs(b => b.map(x => x.id === updated.id ? updated : x));
+    setBlogs(b => b.map(x => x.blog_id === updated.blog_id ? updated : x));
   }
 
   function blogDeleted(id) {
-    setBlogs(b => b.filter(x => x.id !== id));
+    setBlogs(b => b.filter(x => x.blog_id !== id));
     setActiveBlogId(null);
     setPanel("blogs");
   }
 
-  async function confirmDeleteBlog(blog) {
+  async function confirmDeleteBlog(blog_id) {
     setDeleteConfirm(null);
-    await api.deleteBlog(blog.id);
-    blogDeleted(blog.id);
-    showToast("Blog deleted");
+    await api.deleteBlog(blog_id);
+    blogDeleted(blog_id);
+    showToast("Blog deleted", "success");
   }
 
   return (
     <>
+        <button onClick={() => console.log(activeBlog)}>Test</button>
       {showNewBlog && <NewBlogModal userId={user} onCreated={blogCreated} onClose={() => setShowNewBlog(false)} />}
       {deleteConfirm && (
         <ConfirmModal
           title="Delete this blog?"
-          message={`"${deleteConfirm.name}" and all its posts will be permanently deleted.`}
+          message={`"${deleteConfirm.title}" blog and all its posts will be permanently deleted.`}
           confirmLabel="Delete"
           danger
-          onConfirm={() => confirmDeleteBlog(deleteConfirm)}
+          onConfirm={() => {confirmDeleteBlog(deleteConfirm.blog_id)}}
           onCancel={() => setDeleteConfirm(null)}
         />
       )}
@@ -449,6 +472,7 @@ export default function DashboardPage({ blogId: initialBlogId }) {
                   onSelectBlog={selectBlog}
                   onNewBlog={() => setShowNewBlog(true)}
                   onDeleteBlog={setDeleteConfirm}
+                  onEditBlog={setPanel}
                 />
               )}
               {panel === "posts" && activeBlog && (
@@ -459,6 +483,7 @@ export default function DashboardPage({ blogId: initialBlogId }) {
                   blog={activeBlog}
                   onUpdated={blogUpdated}
                   onDeleted={blogDeleted}
+                  onSubmit={setPanel}
                 />
               )}
             </div>
