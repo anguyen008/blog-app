@@ -13,7 +13,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Topbar, Brand, Icons, showToast, Spinner } from "../components/UI";
 import * as api from "../api/api";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 
 /**
  * Utility: Calculate word count in text
@@ -79,9 +79,7 @@ function PreviewPane({ title, body, blog, authorName, onClose }) {
 export default function EditorPage() {
   const { user, token } = useAuth();
   const navigate = useNavigate()
-  const location = useLocation();
-
-  const {blogId, postId } = location.state || {};
+  const {blogId, postId} = useParams();
 
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
@@ -176,7 +174,7 @@ export default function EditorPage() {
    * Navigate back to dashboard for the current blog
    */
   function goBack() {
-    navigate("/dashboard"); // Need to include the blog name too
+    navigate(`/dashboard/blog/${blogId}/posts`); // Need to include the blog name too
   }
 
   if (loading) return (
@@ -195,7 +193,7 @@ export default function EditorPage() {
       <Topbar>
         <Brand onClick={goBack} />
         <div className="topbar-right" style={{ fontSize: 12, color: "var(--ink3)" }}>
-          {blog && <span style={{ color: "var(--ink4)" }}>{blog.name}</span>}
+          {blog && <span style={{ color: "var(--ink4)" }}>{blog.title}</span>}
         </div>
       </Topbar>
 

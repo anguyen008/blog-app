@@ -84,6 +84,9 @@ class Post(Base):
     title = Column(String, index=True, nullable=False)
     content = Column(String, nullable=False)
     published = Column(String, nullable=False, default="false")
+    author_id = Column(
+        UUID, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False
+    )  # Foreign key to Blogs
     blog_id = Column(
         UUID, ForeignKey("blogs.blog_id", ondelete="CASCADE"), nullable=False
     )  # Foreign key to Blogs
@@ -98,6 +101,7 @@ class Post(Base):
     )
 
     blog = relationship("Blog", backref="posts")  # ORM relationship to Blogs
+    author = relationship("User", backref="posts")
 
 
 Blog.number_of_posts = column_property(

@@ -3,12 +3,31 @@ from ast import stmt
 from fastapi import Depends, HTTPException, status, Response, APIRouter
 from .. import models, schemas, utils, oauth2
 from sqlalchemy.orm import Session
-from sqlalchemy import select, text
+from sqlalchemy import select, text, or_
 from ..database import get_db
 import uuid
 from typing import List
 
 router = APIRouter(prefix="/posts", tags=["Posts"])
+
+
+@router.get("/posts", response_model=List[schemas.PostResponse])
+def get_visible_posts(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(oauth2.get_current_user),
+):
+    # This single query enforces your exact rules:
+    # 1. PostModel.is_published == True -> Anyone can see these
+    # 2. PostModel.owner_id == current_user.id -> Only the creator can see these if unpublished
+    posts = (
+        db.query(models.Post)
+        .filter(
+            or_(models.Post.published == True, models.Post.author_id == current_user.id)
+        )
+        .all()
+    )
+
+    return posts
 
 
 @router.get("/{post_id}", response_model=schemas.PostResponse)
@@ -48,7 +67,7 @@ def create_post(
             status_code=403, detail=f"Not authorized to create post for this blog"
         )
 
-    create_post_query = models.Post(**post.model_dump())
+    create_post_query = models.Post(**post.model_dump(), author_id=current_user.user_id)
 
     if create_post_query is None:
         raise HTTPException(status_code=400, detail="Failed to create post")

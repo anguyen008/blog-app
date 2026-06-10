@@ -15,7 +15,6 @@ import RegisterPage from "./pages/RegisterPage";
 import SetupPage from "./pages/SetupPage";
 import DashboardPage from "./pages/DashboardPage";
 import EditorPage from "./pages/EditorPage";
-import BlogSettingsPage from "./pages/BlogSettingsPage";
 import {Routes, Route} from "react-router-dom"
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -58,9 +57,9 @@ export default function App() {
         <Route path = "/login" element={<LoginPage/>}/>
         <Route path = "/sign-up" element={<RegisterPage/>}/>
         <Route path = "/setup-blog" element={<SetupPage/>}/>
-        <Route path = "/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>}/>
-        <Route path = "/editor" element={<ProtectedRoute><EditorPage/></ProtectedRoute>}/>
-        {page === "blog-settings" && <BlogSettingsPage/>}
+        <Route path = "/dashboard/blog/:blogId/posts/editor/:postId" element={<ProtectedRoute><EditorPage/></ProtectedRoute>}/>
+        <Route path = "/dashboard/blog/:blogId/posts/editor" element={<ProtectedRoute><EditorPage/></ProtectedRoute>}/>
+        <Route path = "/dashboard/*" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>}/>
 
       </Routes>
       </div>

@@ -14,7 +14,7 @@ import { useState, useEffect, useRef} from "react";
 import { useAuth } from "../context/AuthContext";
 import { Topbar, Brand, Icons, ConfirmModal, showToast, Spinner } from "../components/UI";
 import * as api from "../api/api";
-import { useNavigate, Link, Navigate } from "react-router-dom";
+import { useNavigate, Link, Navigate, useLocation } from "react-router-dom";
 
 /**
  * Utility: Format ISO date to readable format (e.g., "Jan 15, 2024")
@@ -53,7 +53,7 @@ function Sidebar({ blogs, activeBlogId, panel, onSelectBlog, onPanel, onNewBlog 
   return (
     <nav className="sidebar">
       <div className="sidebar-section">My Blogs</div>
-      <div className={`sidebar-item ${!activeBlogId && panel === "blogs" ? "active" : ""}`} onClick={() => { onSelectBlog(null); onPanel("blogs"); }}>
+      <div className={`sidebar-item ${!activeBlogId && panel === "blogs" ? "active" : ""}`} onClick={() => { onSelectBlog(null); onPanel("blogs-settings"); }}>
         {Icons.grid} All blogs
       </div>
       <div className="sidebar-item" onClick={onNewBlog}>
@@ -63,7 +63,7 @@ function Sidebar({ blogs, activeBlogId, panel, onSelectBlog, onPanel, onNewBlog 
       {activeBlog && (
         <>
           <div className="sidebar-divider" />
-          <div className="sidebar-blog-name" title={activeBlog.title}>{activeBlog.name}</div>
+          <div className="sidebar-blog-name" title={activeBlog.title}>{activeBlog.title}</div>
           <div className={`sidebar-item ${panel === "posts" ? "active" : ""}`} onClick={() => onPanel("posts")}>
             {Icons.file} Posts
           </div>
@@ -171,7 +171,7 @@ function PostsPanel({ blog, onEdit, onNewPost }) {
     await api.deletePost(post.post_id);
     setPosts(p => p.filter(x => x.post_id !== post.post_id));
     setDeletingId(null);
-    showToast("Post deleted");
+    showToast("Post deleted", "success");
   }
 
   return (
@@ -218,9 +218,9 @@ function PostsPanel({ blog, onEdit, onNewPost }) {
                   <button
                     className="btn ghost sm icon-only"
                     onClick={e => { e.stopPropagation(); setConfirm(post); }}
-                    disabled={deletingId === post.id}
+                    disabled={deletingId === post.post_id}
                     title="Delete post"
-                  >{deletingId === post.id ? <Spinner /> : Icons.trash}</button>
+                  >{deletingId === post.post_id ? <Spinner /> : Icons.trash}</button>
                 </div>
               </div>
             ))}
@@ -368,18 +368,34 @@ export default function DashboardPage() {
   const [blogs, setBlogs] = useState([]);
   const [postCounts, setPostCounts] = useState({});
   const [loadingBlogs, setLoadingBlogs] = useState(false);
-  const [activeBlogId, setActiveBlogId] = useState( null);
-  const [panel, setPanel] = useState("blogs");
   const [showNewBlog, setShowNewBlog] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const navigate = useNavigate()
+  
+  const panel = location.pathname.includes("/settings") ? "blog-settings"
+  : location.pathname.includes("/posts") ? "posts"
+  : "blogs";
+
+  const activeBlogId = location.pathname.includes("/blog/")
+  ? location.pathname.split("/blog/")[1]?.split("/")[0]
+  : null;
 
   const activeBlog = blogs.find(b => b.blog_id === activeBlogId);
 
   function selectBlog(id) {
-    setActiveBlogId(id);
-    setPanel(id ? "posts" : "blogs");
+    if (id){
+      navigate(`/dashboard/blog/${id}/posts`);
+    }
+    else{
+      navigate("/dashboard/my-blogs");
+    }
   }
+  function handlePanel(p) {
+  if (p === "blogs") navigate("/dashboard/my-blogs");
+  else if (p === "posts") navigate(`/dashboard/blog/${activeBlogId}/posts`);
+  else if (p === "blog-settings") navigate(`/dashboard/blog/${activeBlogId}/settings`);
+}
+
 
   useEffect(() => {
     async function getAllBlogs() {
@@ -404,8 +420,7 @@ export default function DashboardPage() {
     setBlogs(b => [...b, blog]);
     setPostCounts(c => ({ ...c, [blog.blog_id]: 0 }));
     setShowNewBlog(false);
-    setActiveBlogId(blog.blog_id);
-    setPanel("posts");
+    navigate(`/dashboard/blog/${blog.blog_id}/posts`);
     showToast("Blog created!", "success");
   }
 
@@ -415,8 +430,7 @@ export default function DashboardPage() {
 
   function blogDeleted(id) {
     setBlogs(b => b.filter(x => x.blog_id !== id));
-    setActiveBlogId(null);
-    setPanel("blogs");
+    navigate("/dashboard/my-blogs")
   }
 
   async function confirmDeleteBlog(blog_id) {
@@ -428,7 +442,6 @@ export default function DashboardPage() {
 
   return (
     <>
-        <button onClick={() => console.log(activeBlog)}>Test</button>
       {showNewBlog && <NewBlogModal userId={user} onCreated={blogCreated} onClose={() => setShowNewBlog(false)} />}
       {deleteConfirm && (
         <ConfirmModal
@@ -442,7 +455,7 @@ export default function DashboardPage() {
       )}
 
       <Topbar>
-        <Brand onClick={() => { setActiveBlogId(null); setPanel("blogs"); }} />
+        <Brand onClick={() => { navigate('/dashboard/my-blogs') }} />
         <div className="topbar-right">
           <Avatar name={user.name} size={30} />
           <span style={{ fontSize: 13, color: "var(--ink2)" }}>{user.name}</span>
@@ -459,10 +472,7 @@ export default function DashboardPage() {
               activeBlogId={activeBlogId}
               panel={panel}
               onSelectBlog={selectBlog}
-              onPanel={p => {
-                setPanel(p);
-                if (p === "blog-settings" && !activeBlogId && blogs.length > 0) setActiveBlogId(blogs[0].id);
-              }}
+              onPanel={p => {handlePanel(p)}}
               onNewBlog={() => setShowNewBlog(true)}
             />
             <div className="main-area">
@@ -473,14 +483,14 @@ export default function DashboardPage() {
                   onSelectBlog={selectBlog}
                   onNewBlog={() => setShowNewBlog(true)}
                   onDeleteBlog={setDeleteConfirm}
-                  onEditBlog={setPanel}
+                  onEditBlog={handlePanel}
                 />
               )}
               {panel === "posts" && activeBlog && (
                 <PostsPanel 
                   blog = {activeBlog}
-                  onEdit={post_id => {navigate("/editor", {state: {blogId: activeBlogId, postId: post_id}})}}
-                  onNewPost={() =>{navigate("/editor", {state: {blogId: activeBlogId, postId: null}})}}
+                  onEdit={post_id => {navigate(`/dashboard/blog/${activeBlogId}/posts/editor/${post_id}`)}}
+                  onNewPost={()=> {navigate(`/dashboard/blog/${activeBlogId}/posts/editor`)}}
 
                   
                   />
@@ -490,7 +500,7 @@ export default function DashboardPage() {
                   blog={activeBlog}
                   onUpdated={blogUpdated}
                   onDeleted={blogDeleted}
-                  onSubmit={setPanel}
+                  onSubmit={handlePanel}
                 />
               )}
             </div>
