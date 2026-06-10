@@ -17,6 +17,13 @@ def get_blogs(db: Session = Depends(get_db)):
     return blogs
 
 
+@router.get("/{blog_id}/posts", response_model=List[schemas.PostResponse])
+def get_posts(blog_id: uuid.UUID, db: Session = Depends(get_db)):
+    """Retrieve all posts of a blog. Demonstrates: ORM query, response model serialization"""
+    posts = db.query(models.Post).filter(models.Post.blog_id == blog_id).all()
+    return posts
+
+
 @router.get("/{user_id}", response_model=List[schemas.BlogResponse])
 def get_user_blogs(
     user_id=uuid.UUID,

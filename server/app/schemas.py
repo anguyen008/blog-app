@@ -79,6 +79,7 @@ class BlogResponse(BlogBase):
 class PostBase(BaseModel):
     """Shared fields between Create/Response models"""
 
+    blog_id: uuid.UUID | None = None
     title: str
     content: str
     published: bool = False
@@ -94,6 +95,7 @@ class PostResponse(PostBase):
     """Schema for GET endpoints - includes DB-generated fields"""
 
     model_config = ConfigDict(from_attributes=True)
+    post_id: uuid.UUID
     created_at: datetime
     post_id: uuid.UUID
     blog: BlogResponse

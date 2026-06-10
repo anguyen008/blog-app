@@ -28,16 +28,6 @@ export default function App() {
   const [pageParams, setPageParams] = useState({});
 
   /**
-   * Navigate to a new page with optional parameters
-   * @param {string} to - Page name (login, register, setup, dashboard, editor, blog-settings)
-   * @param {object} params - Route parameters to pass to the page
-   */
-  function navigate(to, params = {}) {
-    setPage(to);
-    setPageParams(params);
-  }
-
-  /**
    * Handle user login - set user data and route appropriately
    * New users without a blog go to setup; existing users go to dashboard
    */
@@ -68,10 +58,9 @@ export default function App() {
         <Route path = "/login" element={<LoginPage/>}/>
         <Route path = "/sign-up" element={<RegisterPage/>}/>
         <Route path = "/setup-blog" element={<SetupPage/>}/>
-        <Route path = "/dashboard" element={<ProtectedRoute><DashboardPage blogId={pageParams.blogId}/></ProtectedRoute>}/>
-
-        {page === "editor" && <EditorPage postId={pageParams.postId} blogId={pageParams.blogId} />}
-        {page === "blog-settings" && <BlogSettingsPage blogId={pageParams.blogId} />}
+        <Route path = "/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>}/>
+        <Route path = "/editor" element={<ProtectedRoute><EditorPage/></ProtectedRoute>}/>
+        {page === "blog-settings" && <BlogSettingsPage/>}
 
       </Routes>
       </div>

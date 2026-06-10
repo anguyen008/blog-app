@@ -10,7 +10,7 @@ export default function ProtectedRoute({ children }) {
         return <div>Loading ...</div>
 
     if (!user) {
-        return <Navigate to="/" replace />;  // ✅ redirects if not logged in
+        return <Navigate to="/" replace />;  // redirects if not logged in
     }
 
     return children;

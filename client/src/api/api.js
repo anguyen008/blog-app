@@ -83,7 +83,7 @@ export async function deleteBlog(blog_id) {
     .catch(error => {
       throw error;
     });
-  return response.data
+  return response
 }
 
 export async function updateBlog(blog_id, { title, tagline, about }) {
@@ -97,11 +97,50 @@ export async function updateBlog(blog_id, { title, tagline, about }) {
 }
 
 
-
-
 export async function getBlogPosts(blog_id) {
-  const response = await axios.get(`${backendUrl}/${blog_id}`)
+  const response = await axios.get(`${backendUrl}/blogs/${blog_id}/posts`)
+    .catch(error => {
+      throw error;
+    });
   return response.data
 
 }
 
+
+
+export async function createPost({ blog_id, title, content, published }) {
+  const response = await axios.post(`${backendUrl}/posts/`, { blog_id, title, content, published }, {
+    withCredentials: true
+  })
+    .catch(error => {
+      throw error;
+    });
+  return response.data
+}
+
+
+export async function updatePost(post_id, { title, content, published }) {
+  const response = await axios.put(`${backendUrl}/posts/${post_id}`, { title, content, published }, {
+    withCredentials: true
+  })
+    .catch(error => {
+      throw error;
+    });
+}
+
+export async function getPost(post_id) {
+  const response = await axios.get(`${backendUrl}/posts/${post_id}`)
+    .catch(error => {
+      throw error;
+    });
+  return response.data
+}
+
+
+export async function deletePost(post_id) {
+  const response = await axios.delete(`${backendUrl}/posts/${post_id}`)
+    .catch(error => {
+      throw error;
+    });
+  return response
+}

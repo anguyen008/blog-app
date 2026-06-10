@@ -13,6 +13,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Topbar, Brand, Icons, showToast, Spinner } from "../components/UI";
 import * as api from "../api/api";
+import { useNavigate, useLocation } from "react-router-dom";
 
 /**
  * Utility: Calculate word count in text
@@ -75,9 +76,13 @@ function PreviewPane({ title, body, blog, authorName, onClose }) {
  * EditorPage - Main editor component
  * Manages post state, auto-save, and renders editor UI
  */
-export default function EditorPage({ postId, blogId }) {
-  const { user, navigate } = useAuth();
-  // Post content state
+export default function EditorPage() {
+  const { user, token } = useAuth();
+  const navigate = useNavigate()
+  const location = useLocation();
+
+  const {blogId, postId } = location.state || {};
+
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [status, setStatus] = useState("draft"); // "draft" or "published"
@@ -92,39 +97,42 @@ export default function EditorPage({ postId, blogId }) {
   const autoSaveTimer = useRef(null);
   const isDirty = useRef(false);
 
+ 
   /**
    * Load blog and post data on mount or when route changes
    */
   useEffect(() => {
     async function load() {
+      setLoading(true)
       // Load blog info
-      const [bl] = await api.getBlogs(user.id).then(bs => bs.filter(b => b.id === blogId));
+      const [bl] = await api.getUserBlogs(user.user_id).then(bs => bs.filter(b => b.blog_id === blogId));
       setBlog(bl);
       // Load existing post if editing
       if (postId) {
-        const post = await api.getPost(postId);
-        setTitle(post.title); setBody(post.body); setStatus(post.status);
+        const post = await api.getPost(currentPostId);
+        setTitle(post.title); setBody(post.content); setStatus(post.published ? "published" : "draft");
       }
       setLoading(false);
     }
     load().catch(err => { showToast(err.message, "error"); setLoading(false); });
-  }, [postId, blogId, user.id]);
+  }, [postId, blogId, user.user_id]);
 
   /**
    * Save post to API (create new or update existing)
    * @param {string} forcedStatus - Optional status to override (for publish/save draft buttons)
    */
   const save = useCallback(async (forcedStatus) => {
-    const s = forcedStatus || status;
+    const s = (forcedStatus || status) === "published";
     setSaving(true);
     setSaveLabel("");
     try {
       // Create new post or update existing
       if (currentPostId) {
-        await api.updatePost(currentPostId, { title, body, status: s });
+        await api.updatePost(currentPostId, {title: title, content: body, published: s});
       } else {
-        const post = await api.createPost({ blogId, title, body, status: s });
-        setCurrentPostId(post.id);
+        if (!title.trim()) { showToast(("Post name is required."), "error"); return; }
+        const post = await api.createPost({ blog_id: blogId, title: title, content: body, published: s});
+        setCurrentPostId(post.post_id);
       }
       if (forcedStatus) setStatus(forcedStatus);
       // Show success feedback
@@ -168,7 +176,7 @@ export default function EditorPage({ postId, blogId }) {
    * Navigate back to dashboard for the current blog
    */
   function goBack() {
-    navigate("dashboard", { blogId });
+    navigate("/dashboard"); // Need to include the blog name too
   }
 
   if (loading) return (
@@ -228,7 +236,7 @@ export default function EditorPage({ postId, blogId }) {
             <button className="btn ghost" onClick={() => setPreview(true)}>
               {Icons.eye} Preview
             </button>
-            <button className="btn" onClick={() => save("draft")} disabled={saving}>
+            <button className="btn" onClick={() => {save("draft");}} disabled={saving}>
               Save draft
             </button>
             <button className="btn primary" onClick={() => save("published")} disabled={saving}>

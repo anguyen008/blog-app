@@ -152,7 +152,7 @@ function BlogsPanel({ blogs, postCounts, onSelectBlog, onNewBlog, onDeleteBlog, 
  * PostsPanel - List view of posts for selected blog
  * Displays post rows with edit/delete options and empty state
  */
-function PostsPanel({ blog, onEdit, onNewPost, navigate }) {
+function PostsPanel({ blog, onEdit, onNewPost }) {
   const { user, token } = useAuth();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -167,9 +167,9 @@ function PostsPanel({ blog, onEdit, onNewPost, navigate }) {
 
   async function handleDelete(post) {
     setConfirm(null);
-    setDeletingId(post.id);
-    await api.deletePost(post.id);
-    setPosts(p => p.filter(x => x.id !== post.id));
+    setDeletingId(post.post_id);
+    await api.deletePost(post.post_id);
+    setPosts(p => p.filter(x => x.post_id !== post.post_id));
     setDeletingId(null);
     showToast("Post deleted");
   }
@@ -207,7 +207,7 @@ function PostsPanel({ blog, onEdit, onNewPost, navigate }) {
         ) : (
           <div className="posts-list">
             {posts.map(post => (
-              <div key={post.id} className="post-row" onClick={() => onEdit(post.id)}>
+              <div key={post.post_id} className="post-row" onClick={() => onEdit(post.post_id)}>
                 <div className="post-row-meta">
                   <div className="post-row-title">{post.title || "Untitled"}</div>
                   {post.body && <div className="post-row-excerpt">{post.body.substring(0, 140)}</div>}
@@ -363,13 +363,13 @@ function BlogSettingsPanel({ blog, onUpdated, onDeleted, onSubmit }) {
  * DashboardPage - Main component
  * Manages dashboard state and renders appropriate panel based on selection
  */
-export default function DashboardPage({ blogId: initialBlogId }) {
+export default function DashboardPage() {
   const { user, token } = useAuth();
   const [blogs, setBlogs] = useState([]);
   const [postCounts, setPostCounts] = useState({});
   const [loadingBlogs, setLoadingBlogs] = useState(false);
-  const [activeBlogId, setActiveBlogId] = useState(initialBlogId || null);
-  const [panel, setPanel] = useState(initialBlogId ? "posts" : "blogs");
+  const [activeBlogId, setActiveBlogId] = useState( null);
+  const [panel, setPanel] = useState("blogs");
   const [showNewBlog, setShowNewBlog] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const navigate = useNavigate()
@@ -392,6 +392,7 @@ export default function DashboardPage({ blogId: initialBlogId }) {
         console.log("error fetching blogs:", err);
       } finally {
         setLoadingBlogs(false);
+
       }
     }
     getAllBlogs();
@@ -476,7 +477,13 @@ export default function DashboardPage({ blogId: initialBlogId }) {
                 />
               )}
               {panel === "posts" && activeBlog && (
-                console.log("Post Panel")
+                <PostsPanel 
+                  blog = {activeBlog}
+                  onEdit={post_id => {navigate("/editor", {state: {blogId: activeBlogId, postId: post_id}})}}
+                  onNewPost={() =>{navigate("/editor", {state: {blogId: activeBlogId, postId: null}})}}
+
+                  
+                  />
               )}
               {panel === "blog-settings" && activeBlog && (
                 <BlogSettingsPanel

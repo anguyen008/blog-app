@@ -11,14 +11,6 @@ from typing import List
 router = APIRouter(prefix="/posts", tags=["Posts"])
 
 
-@router.get("/{blog_id}", response_model=List[schemas.PostResponse])
-def get_posts(blog_id: uuid.UUID, db: Session = Depends(get_db)):
-    """Retrieve all posts of a blog. Demonstrates: ORM query, response model serialization"""
-    posts = db.query(models.Post).filter(models.Post.blog_id == blog_id).all()
-
-    return posts
-
-
 @router.get("/{post_id}", response_model=schemas.PostResponse)
 def read_post(
     post_id: uuid.UUID,
@@ -35,29 +27,28 @@ def read_post(
 
 
 @router.post(
-    "/{blog_id}",
+    "/",
     response_model=schemas.PostResponse,
     status_code=status.HTTP_201_CREATED,
 )
 def create_post(
-    blog_id: uuid.UUID,
     post: schemas.PostCreate,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(oauth2.get_current_user),
 ):
     """Create new post - demonstrates: SQL insert, transaction commit"""
 
-    blog = db.query(models.Blog).filter(models.Blog.blog_id == blog_id).first()
+    blog = db.query(models.Blog).filter(models.Blog.blog_id == post.blog_id).first()
     if not blog:
         raise HTTPException(
-            status_code=404, detail=f"Blog with uuid {blog_id} not found"
+            status_code=404, detail=f"Blog with uuid {post.blog_id} not found"
         )
     if str(blog.author_id) != str(current_user.user_id):
         raise HTTPException(
             status_code=403, detail=f"Not authorized to create post for this blog"
         )
 
-    create_post_query = models.Post(**post.model_dump(), blog_id=blog_id)
+    create_post_query = models.Post(**post.model_dump())
 
     if create_post_query is None:
         raise HTTPException(status_code=400, detail="Failed to create post")
@@ -114,26 +105,16 @@ def update_post(
             status_code=403, detail="Not authorized to update this post"
         )
 
-    update_query = db.execute(
-        text("""
-        UPDATE posts
-        SET title = :title, content = :content, published = :published
-        WHERE post_id = :post_id
-        RETURNING *
-        """),
-        {
-            "title": updated_post.title,
-            "content": updated_post.content,
-            "published": updated_post.published,
-            "post_id": post_id,
-        },
-    )
+    # 1. Update the fetched ORM object directly using a dictionary
+    update_data = updated_post.model_dump(
+        exclude_unset=True
+    )  # or updated_post.dict() in Pydantic v1
+    for key, value in update_data.items():
+        setattr(post, key, value)
 
-    if update_query is None:
-        raise HTTPException(
-            status_code=404, detail=f"Post with uuid {post_id} not found"
-        )
+    # 2. Save and lock the changes into the database
     db.commit()
-    db.refresh(update_query)
+    db.refresh(post)
 
-    return update_query
+    # 3. Return the actual ORM object
+    return post
