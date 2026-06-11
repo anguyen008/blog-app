@@ -37,11 +37,12 @@ export async function loginUser({ email, password }) {
 
 
 export async function registerUser({ name, email, password }) {
-  return await axios.post(`${backendUrl}/users`, { name, email, password }).data
-    .catch(error => {
-      throw error;
-
-    });
+  try {
+    const response = await axios.post(`${backendUrl}/users`, { name, email, password })
+    return response.data
+  } catch (error) {
+    throw error;
+  };
 }
 
 

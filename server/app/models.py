@@ -48,9 +48,9 @@ class Blog(Base):
         default=uuid.uuid4,
         server_default=text("uuidv4()"),
     )
-    title = Column(String, index=True, nullable=False)
-    tagline = Column(String, nullable=True)
-    about = Column(String, nullable=True)
+    title = Column(String(70), index=True, nullable=False)
+    tagline = Column(String(120), nullable=True)
+    about = Column(String(350), nullable=True)
     author_id = Column(
         UUID, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False
     )  # Foreign key to Users

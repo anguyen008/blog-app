@@ -642,22 +642,37 @@ body {
   padding: 24px 28px 20px;
   border-bottom: 1px solid var(--border);
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: space-between;
   position: sticky;
   top: 0;
   background: var(--paper);
   z-index: 5;
+  gap: 24px;
 }
 .posts-header-left h2 {
+  flex-shrink: 0;
   font-family: var(--ff-display);
   font-size: 26px;
   font-weight: 500;
   margin-bottom: 2px;
 }
 .posts-header-left p {
+  flex-shrink: 0;
   font-size: 13px;
   color: var(--ink3);
+}
+
+.posts-header-about {
+  flex: 1;
+  font-size: 18px;
+  color: var(--ink3);
+  line-height: 1.7;
+  border-left: 1px solid var(--border);
+  padding-left: 24px;
+  overflow: hidden;
+  overflow-wrap: break-word; /* Standard modern property */
+  word-wrap: break-word;
 }
 
 .post-row {
@@ -926,7 +941,7 @@ body {
   right: 0;
   top: calc(100% + 4px);
   background: #e4dcc2;
-  border-radius: 8px;
+  border-radius: 6px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   z-index: 100;
   min-width: 130px;
@@ -934,14 +949,17 @@ body {
 }
 
 .popover-menu button {
-  display: block;
+  display: flex;
   width: 100%;
-  padding: 8px 14px;
+  padding: 12px 16px;
   text-align: left;
   background: none;
   border: none;
   cursor: pointer;
   font-size: 14px;
+  color: var(--ink2);
+  align-items: center;
+  gap: 6px;
 }
 
 .popover-menu button:hover {
@@ -960,4 +978,73 @@ body {
   right: -20px;
   top: calc(85%); /* sits just below the meta row */
   /* ... rest of your styles */
+}
+
+/* ── SUBNAV ─────────────────────────────────── */
+.subnav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 28px;
+  height: 42px;
+  border-bottom: 1px solid var(--border);
+  background: var(--paper);
+  position: sticky;
+  top: 56px; /*sits just below topbar */
+  z-index: 99;
+}
+
+.subnav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 20px;
+  font-size: 13px;
+  color: var(--ink2);
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition:
+    background 0.12s,
+    color 0.12s;
+  border-bottom: 2px solid transparent;
+}
+
+.subnav-item:hover {
+  background: var(--paper2);
+  color: var(--ink);
+}
+
+.subnav-item.active {
+  color: var(--accent);
+  font-weight: 500;
+  border-bottom-color: var(--accent);
+}
+
+.subnav-blog-name {
+  font-family: var(--ff-display);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-right: 8px;
+  padding-right: 12px;
+  border-right: 1px solid var(--border2);
+}
+
+/* ── Avatar Button ─────────────────────────────────── */
+.avatar-button {
+  border-radius: 50%;
+  background: var(--accent-bg);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  flex-shrink: 0;
+  border: 0;
+  cursor: pointer;
+}
+
+.avatar-button:hover {
+  box-shadow: var(--shadow-lg);
+  border-color: var(--border2);
 }

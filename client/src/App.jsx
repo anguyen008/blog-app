@@ -12,7 +12,6 @@ import { useState } from "react";
 import {AuthProvider, useAuth} from "./context/AuthContext";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
-import SetupPage from "./pages/SetupPage";
 import DashboardPage from "./pages/DashboardPage";
 import EditorPage from "./pages/EditorPage";
 import {Routes, Route} from "react-router-dom"
@@ -56,7 +55,6 @@ export default function App() {
         <Route path = "/" element={<LoginPage/>}/>
         <Route path = "/login" element={<LoginPage/>}/>
         <Route path = "/sign-up" element={<RegisterPage/>}/>
-        <Route path = "/setup-blog" element={<SetupPage/>}/>
         <Route path = "/dashboard/blog/:blogId/posts/editor/:postId" element={<ProtectedRoute><EditorPage/></ProtectedRoute>}/>
         <Route path = "/dashboard/blog/:blogId/posts/editor" element={<ProtectedRoute><EditorPage/></ProtectedRoute>}/>
         <Route path = "/dashboard/*" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>}/>

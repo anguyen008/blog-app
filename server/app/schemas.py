@@ -12,7 +12,7 @@ class UserBase(BaseModel):
     name: str
     email: EmailStr  # Built-in validation for valid email format
 
-g
+
 class UserCreate(UserBase):
     """Schema for POST /users endpoint"""
 
@@ -73,6 +73,7 @@ class BlogResponse(BlogBase):
     model_config = ConfigDict(from_attributes=True)
     blog_id: uuid.UUID
     created_at: datetime
+    number_of_posts: int
     author: UserResponse
 
 
