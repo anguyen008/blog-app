@@ -18,35 +18,48 @@ import axios from "axios";
 const AuthContext = createContext();
 
 export const AuthProvider = ({children}) => {
-    const [token, setToken] = useState(sessionStorage.getItem("token"));
+    const [token, setToken] = useState(() => sessionStorage.getItem("token"));
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
 
-useEffect(() => {
-    const restoreUser = async () => {
-        if (!token) {
-            setLoading(false)
-            return;
-        }
-        try {
-            const response  = await getUserId(token); // this verifies the token
-            const getUser = await getUserInfo(response.user_id)
-            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`
-            setUser(getUser);
-            
-        } catch(error) {
-            //  if token is invalid, expired, or tampered this runs
-            sessionStorage.removeItem("token");
-            setToken(null);
-            setUser(null);
-        }
-        finally{
-            setLoading(false)
-        }
-    };
-    restoreUser();
 
-}, []);
+
+
+
+    useEffect(() => {
+    if (token) {
+        sessionStorage.setItem("token", token);
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    } else {
+        sessionStorage.removeItem("token");
+        delete axios.defaults.headers.common["Authorization"]; 
+    }
+    }, [token]);
+
+    useEffect(() => {
+        const restoreUser = async () => {
+            if (!token) {
+                setLoading(false)
+                return;
+            }
+            try {
+                const response  = await getUserId(); // this verifies the token
+                const getUser = await getUserInfo(response.user_id)
+                axios.defaults.headers.common["Authorization"] = `Bearer ${token}`
+                setUser(getUser);
+                
+            } catch(error) {
+                //  if token is invalid, expired, or tampered this runs
+                sessionStorage.removeItem("token");
+                setToken(null);
+                setUser(null);
+            }
+            finally{
+                setLoading(false)
+            }
+        };
+        restoreUser();
+    }, []);
 
 
     const register = async ({name, email, password})=> {
@@ -59,17 +72,16 @@ useEffect(() => {
         const response = await loginUser({email, password});
         const token =  response.access_token
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`        
-        sessionStorage.setItem("token", token);
         setToken(token);
-        const userid = await getUserId(token)
-        const getUser = await getUserInfo(userid.user_id)
+        const verification = await getUserId()
+        const getUser = await getUserInfo(verification.user_id)
         setUser(getUser)
 
     }
 
     const logout = () => {
-        sessionStorage.removeItem("token");
         setToken(null);
+        setUser(null)
         
     }
     return(

@@ -16,49 +16,23 @@ import DashboardPage from "./pages/DashboardPage";
 import EditorPage from "./pages/EditorPage";
 import {Routes, Route} from "react-router-dom"
 import ProtectedRoute from "./components/ProtectedRoute";
+import PublicRoute from "./components/PublicRoute";
+import UserSettingsPanel from "./pages/UserSettings";
 
 export default function App() {
-  // Track currently logged-in user
-  const [user, setUser] = useState(null);
-  // Track active page/route
-  const [page, setPage] = useState("/")
-  // Store route parameters (e.g., blogId, postId)
-  const [pageParams, setPageParams] = useState({});
 
-  /**
-   * Handle user login - set user data and route appropriately
-   * New users without a blog go to setup; existing users go to dashboard
-   */
-  function login(userData) {
-    setUser(userData);
-    if (!userData.blog) {
-      navigate("setup");
-      
-    }
-    // Route new users to blog setup, existing users to dashboard
-    else
-      navigate("dashboard");
-  }
-
-  /**
-   * Handle user logout - clear user state and return to login
-   */
-  function logout() {
-    setUser(null);
-    navigate("login");
-  }
 
   return (
     <AuthProvider>
       <div className="app-root">
         <Routes>
-        <Route path = "/" element={<LoginPage/>}/>
-        <Route path = "/login" element={<LoginPage/>}/>
-        <Route path = "/sign-up" element={<RegisterPage/>}/>
+         <Route path="/" element={<PublicRoute><LoginPage /></PublicRoute>} />
+          <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+          <Route path="/sign-up" element={<PublicRoute><RegisterPage /></PublicRoute>} />
         <Route path = "/dashboard/blog/:blogId/posts/editor/:postId" element={<ProtectedRoute><EditorPage/></ProtectedRoute>}/>
         <Route path = "/dashboard/blog/:blogId/posts/editor" element={<ProtectedRoute><EditorPage/></ProtectedRoute>}/>
         <Route path = "/dashboard/*" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>}/>
-
+        <Route path = "/user/settings" element={<ProtectedRoute><UserSettingsPanel/></ProtectedRoute>}/>
       </Routes>
       </div>
     </AuthProvider>

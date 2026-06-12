@@ -5,13 +5,13 @@
  * On successful login, routes to dashboard or setup depending on blog status.
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Brand } from "../components/UI";
 import {Link, useNavigate} from "react-router-dom"
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, token, user } = useAuth();
   const navigate = useNavigate()
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
@@ -24,6 +24,11 @@ export default function LoginPage() {
    * Handle login form submission
    * Validates input, calls API, and routes user on success
    */
+  useEffect(()=>{
+    if(token && user)
+        navigate("/dashboard") 
+  }, [])
+
   async function submit(e) {
     e.preventDefault();
     setError("");
@@ -33,12 +38,13 @@ export default function LoginPage() {
       await login(form.email, form.password);
       navigate("/dashboard");
     } catch (err) {
-      setError(err.message || "Cannot find account");
+      setError(err.response?.data?.detail);
     } finally {
       setLoading(false);
     }
   }
 
+  
   return (
     <>
       <div className="auth-deco" aria-hidden="true" />

@@ -2,7 +2,7 @@
 # Demonstrates: routing, dependency injection, database operations, error handling
 
 from fastapi import Depends, HTTPException, status, Response, APIRouter
-from sqlalchemy import exc
+from sqlalchemy import exc, update
 from .. import models, schemas, utils, oauth2
 from sqlalchemy.orm import Session
 from sqlalchemy import text
@@ -82,7 +82,7 @@ def delete_user(
     """Delete user by ID - demonstrates: SQL delete, 204 response (no content)"""
 
     user = db.execute(
-        text("SELECT * FROM users WHERE id = :user_id"),
+        text("SELECT * FROM users WHERE user_id = :user_id"),
         {"user_id": user_id},
     ).fetchone()
     if user is None:
@@ -90,13 +90,13 @@ def delete_user(
             status_code=404, detail=f"User with uuid {user_id} not found"
         )
 
-    if str(user.id) != str(current_user.user_id):
+    if str(user.user_id) != str(current_user.user_id):
         raise HTTPException(
             status_code=403, detail=f"Not authorized to delete this user"
         )
 
     db.execute(
-        text("DELETE FROM users WHERE id = :user_id"),
+        text("DELETE FROM users WHERE user_id = :user_id"),
         {"user_id": user_id},
     )
 
@@ -105,38 +105,70 @@ def delete_user(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-# Temporarily put request
-@router.put("/{user_id}", response_model=schemas.UserResponse)
-def update_user(
+@router.patch("/{user_id}/profile", response_model=schemas.UserResponse)
+def update_user_profile(
     user_id: uuid.UUID,
-    user_update: schemas.UserUpdate,
+    user_update: schemas.UserUpdateProfile,
     db: Session = Depends(get_db),
     current_user: schemas.TokenData = Depends(oauth2.get_current_user),
 ):
-    """Update user fields - BUG: password not hashed on update! Should use utils.hash_password()"""
-    password_hash = utils.hash_password(user_update.password)
-    update_user_query = db.execute(
-        text(
-            "UPDATE users SET name = :name, email = :email, password_hash = :password_hash WHERE id = :user_id RETURNING *"
-        ),
-        {
-            "name": user_update.name,
-            "email": user_update.email,
-            "password_hash": password_hash,  # Correctly hashed password
-            "user_id": user_id,
-        },
-    )
-    updated_user = update_user_query.mappings().fetchone()
+    user_query = db.query(models.User).filter(models.User.user_id == user_id)
+    user = user_query.first()
 
-    if updated_user is None:
+    if user is None:
         raise HTTPException(
             status_code=404, detail=f"User with uuid {user_id} not found"
         )
 
-    if str(current_user.user_id) != str(user_id):
+    if str(user.user_id) != str(current_user.user_id):
+        raise HTTPException(status_code=403, detail="Not authorized to change profile")
+
+    update_query = (
+        update(models.User)
+        .where(models.User.user_id == user_id)
+        .values(**user_update.model_dump())
+        .execution_options(synchronize_session=False)
+    )
+    db.execute(update_query)
+    db.commit()
+
+    return user
+
+
+@router.patch("/{user_id}/password")
+def update_password(
+    user_id: uuid.UUID,
+    update_password: schemas.UserUpdatePassword,
+    db: Session = Depends(get_db),
+    current_user: schemas.TokenData = Depends(oauth2.get_current_user),
+):
+    user_query = db.query(models.User).filter(models.User.user_id == user_id)
+    user = user_query.first()
+
+    if user is None:
         raise HTTPException(
-            status_code=403, detail=f"Not authorized to update this user"
+            status_code=404, detail=f"User with uuid {user_id} not found"
         )
 
+    if str(user.user_id) != str(current_user.user_id):
+        raise HTTPException(status_code=403, detail="Not authorized to change password")
+
+    verify_password = utils.verify_password(
+        update_password.old_password, str(user.password_hash)
+    )
+
+    if not verify_password:
+        raise HTTPException(status_code=401, detail="Incorrect old password")
+
+    new_hash_password = utils.hash_password(update_password.new_password)
+
+    update_query = (
+        update(models.User)
+        .where(models.User.user_id == user_id)
+        .values(password_hash=new_hash_password)
+        .execution_options(synchronize_session=False)
+    )
+    db.execute(update_query)
     db.commit()
-    return updated_user
+
+    return {"message": "Passsword Updated Successfully"}

@@ -54,11 +54,11 @@ export default function RegisterPage() {
             <div className="auth-fields">
               <div className="field">
                 <label htmlFor="reg-name">Your name</label>
-                <input id="reg-name" type="text" placeholder="Ada Lovelace" value={form.name} onChange={set("name")} autoFocus />
+                <input id="reg-name" type="text" placeholder="Choose a name"  value={form.name} onChange={set("name")} autoFocus />
               </div>
               <div className="field">
                 <label htmlFor="reg-email">Email</label>
-                <input id="reg-email" type="email" placeholder="ada@example.com" value={form.email} onChange={set("email")} />
+                <input id="reg-email" type="email"  placeholder="Choose a valid email (6+ chars)" value={form.email} onChange={set("email")} />
               </div>
               <div className="field">
                 <label htmlFor="reg-pw">Password</label>

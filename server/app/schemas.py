@@ -19,10 +19,15 @@ class UserCreate(UserBase):
     password: str
 
 
-class UserUpdate(UserBase):
+class UserUpdatePassword(BaseModel):
     """Schema for PUT /users/{id} endpoint"""
 
-    password: str
+    old_password: str
+    new_password: str
+
+
+class UserUpdateProfile(UserBase):
+    pass
 
 
 class UserResponse(UserBase):

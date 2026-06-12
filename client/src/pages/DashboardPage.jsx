@@ -15,6 +15,7 @@ import { useAuth } from "../context/AuthContext";
 import { Topbar, Brand, Icons, ConfirmModal, showToast, Spinner } from "../components/UI";
 import * as api from "../api/api";
 import { useNavigate, Link, Navigate, useLocation } from "react-router-dom";
+import UserSettingsPanel from "./UserSettings";
 
 /**
  * Utility: Format ISO date to readable format (e.g., "Jan 15, 2024")
@@ -28,7 +29,7 @@ function formatDate(iso) {
  * Avatar - User avatar with initials
  * Displays first two letters of user's name in a circular badge
  */
-function Avatar({ user, size = 34 }) {
+function Avatar({ user, size = 34, onPanel }) {
   const [openPopover, setOpenPopover] = useState(null)
   const {logout} = useAuth();
   const navigate = useNavigate()
@@ -37,7 +38,7 @@ function Avatar({ user, size = 34 }) {
     const handleClickOutside = () => setOpenPopover(null);
     document.addEventListener("click", handleClickOutside);
     document.addEventListener("scroll", handleClickOutside);
-    return () => {document.removeEventListener("click", handleClickOutside); document.addEventListener("scroll", handleClickOutside);};
+    return () => {document.removeEventListener("click", handleClickOutside); document.removeEventListener("scroll", handleClickOutside);};
     }, []);
 
 
@@ -47,12 +48,8 @@ function Avatar({ user, size = 34 }) {
     <button className="avatar-button" style={{width: size, height: size, fontSize: size * 0.5}} onClick={e => {e.stopPropagation(); setOpenPopover(openPopover === user.user_id ? null : user.user_id)}}>{initials}</button>
     {openPopover === user.user_id && (
       <div className="popover-menu" style={{right: "5px"}}>
-       <button onClick={(e) => {onSelectBlog(b.blog_id); onEditBlog("blog-settings"); setOpenPopover(null); e.stopPropagation()}}>
-                    {Icons.settings} Settings
-                  </button>
-                <button onClick={() => {logout(); navigate("/") }}>
-                  {Icons.logout} Sign out
-                </button>
+      <Link className="popover-menu-button" to= "dashboard/user/settings" onClick={(e) => {setOpenPopover(null); e.stopPropagation()}}>{Icons.settings} Settings</Link>
+      <Link className="popover-menu-button" to= "/" onClick={() => {logout(); }}>{Icons.logout} Sign out</Link>
       </div>
     )}
     </>
@@ -134,7 +131,7 @@ function BlogsPanel({ blogs, onSelectBlog, onNewBlog}) {
     const handleClickOutside = () => setOpenPopover(null);
     document.addEventListener("click", handleClickOutside);
     document.addEventListener("scroll", handleClickOutside);
-    return () => {document.removeEventListener("click", handleClickOutside); document.addEventListener("scroll", handleClickOutside);};
+    return () => {document.removeEventListener("click", handleClickOutside); document.removeEventListener("scroll", handleClickOutside);};
     }, []);
   return (
 
@@ -417,6 +414,7 @@ function BlogSettingsPanel({ blog, onUpdated, onDeleted, onSubmit, TITLE_LIMIT, 
  * Manages dashboard state and renders appropriate panel based on selection
  */
 export default function DashboardPage() {
+  const location = useLocation();
   const { user, token } = useAuth();
   const [blogs, setBlogs] = useState([]);
   const [loadingBlogs, setLoadingBlogs] = useState(false);
@@ -426,9 +424,14 @@ export default function DashboardPage() {
   const CHARACTER_LIMIT = 300;
   const TITLE_LIMIT = 60;
   const TAGLINE_LIMIT = 120;
-  
-  const panel = location.pathname.includes("/settings") ? "blog-settings"
-  : location.pathname.includes("/posts") ? "posts"
+
+
+  const panel = location.pathname.includes("user/settings")
+  ? "user-settings"
+  : location.pathname.includes("/settings")
+  ? "blog-settings"
+  : location.pathname.includes("/posts") 
+  ? "posts"
   : "blogs";
 
   const activeBlogId = location.pathname.includes("/blog/")
@@ -449,6 +452,7 @@ export default function DashboardPage() {
   if (p === "blogs") navigate("/dashboard/my-blogs");
   else if (p === "posts") navigate(`/dashboard/blog/${activeBlogId}/posts`);
   else if (p === "blog-settings") navigate(`/dashboard/blog/${activeBlogId}/settings`);
+  else if (p === "user-settings") navigate("/user/settings");
 }
 
 
@@ -511,10 +515,11 @@ export default function DashboardPage() {
       <Topbar>
         <Brand onClick={() => { navigate('/dashboard/my-blogs') }} />
         <div className="topbar-right">
-          <Avatar user={user} size={30} />
+          <Avatar user={user} size={30} onPanel={p => {handlePanel(p)}}/>
           <span style={{ fontSize: 15, color: "var(--ink2)" }}>{user.name}</span>
         </div>
       </Topbar>
+
       
       <Subnav
           blogs = {blogs}
@@ -566,6 +571,9 @@ export default function DashboardPage() {
                   CHARACTER_LIMIT={CHARACTER_LIMIT}
                 />
               )}
+
+              {panel === "user-settings" &&(<UserSettingsPanel></UserSettingsPanel>)}
+
             </div>
           </>
         )}

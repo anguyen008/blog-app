@@ -12,6 +12,6 @@ export default function ProtectedRoute({ children }) {
     if (!user) {
         return <Navigate to="/" replace />;  // redirects if not logged in
     }
-
+    
     return children;
     }
