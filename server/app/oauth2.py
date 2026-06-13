@@ -17,6 +17,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 SECRET_KEY = settings.secret_key
 ALGORITHM = settings.algorithm
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_expire_minutes
+REFRESH_TOKEN_EXPIRE_DAYS = settings.refresh_token_expire_days
 
 
 def create_access_token(data: dict, expires_delta: int = ACCESS_TOKEN_EXPIRE_MINUTES):
@@ -29,7 +30,21 @@ def create_access_token(data: dict, expires_delta: int = ACCESS_TOKEN_EXPIRE_MIN
     expire = datetime.now(timezone.utc) + timedelta(minutes=expires_delta)
     to_encode.update({"exp": int(expire.timestamp())})  # exp must be a UNIX timestamp
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    print(f"Generated JWT token: {encoded_jwt}")
+    print(f"Generated JWT access token: {encoded_jwt}")
+    return encoded_jwt
+
+
+def create_refresh_token(data: dict, expires_delta: int = REFRESH_TOKEN_EXPIRE_DAYS):
+    """
+    Create JWT token. JWT structure: header.payload.signature
+    - Signature proves token hasn't been tampered with
+    - Contains user_id and expiration (exp) claim
+    """
+    to_encode = data.copy()
+    expire = datetime.now(timezone.utc) + timedelta(days=expires_delta)
+    to_encode.update({"exp": int(expire.timestamp())})  # exp must be a UNIX timestamp
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    print(f"Generated JWT refresh token: {encoded_jwt}")
     return encoded_jwt
 
 

@@ -21,6 +21,10 @@ class Settings(BaseSettings):
         default=30, alias="JWT_ACCESS_TOKEN_EXPIRE_MINUTES"
     )
 
+    refresh_token_expire_days: int = Field(
+        default=30, alias="JWT_REFRESH_TOKEN_EXPIRE_DAYS"
+    )
+
     model_config = SettingsConfigDict(
         env_file=".env",
         populate_by_name=True,  # Allow both field name and alias

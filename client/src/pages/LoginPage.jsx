@@ -11,7 +11,7 @@ import { Brand } from "../components/UI";
 import {Link, useNavigate} from "react-router-dom"
 
 export default function LoginPage() {
-  const { login, token, user } = useAuth();
+  const { login, accessToken, user } = useAuth();
   const navigate = useNavigate()
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
@@ -25,9 +25,9 @@ export default function LoginPage() {
    * Validates input, calls API, and routes user on success
    */
   useEffect(()=>{
-    if(token && user)
+    if(accessToken && user)
         navigate("/dashboard") 
-  }, [])
+  })
 
   async function submit(e) {
     e.preventDefault();

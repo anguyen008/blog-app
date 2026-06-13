@@ -124,7 +124,7 @@ function Sidebar({ blogs, activeBlogId, panel, onSelectBlog, onPanel, onNewBlog 
  * Shows blog cards with metadata and delete option
  */
 function BlogsPanel({ blogs, onSelectBlog, onNewBlog}) {
-  const { user, token } = useAuth();
+  const { user, accessToken } = useAuth();
   const [openPopover, setOpenPopover] = useState(null)
 
     useEffect(() => {
@@ -175,7 +175,7 @@ function BlogsPanel({ blogs, onSelectBlog, onNewBlog}) {
  * Displays post rows with edit/delete options and empty state
  */
 function PostsPanel({ blog, onEdit, onNewPost }) {
-  const { user, token } = useAuth();
+  const { user, accessToken } = useAuth();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
@@ -415,7 +415,7 @@ function BlogSettingsPanel({ blog, onUpdated, onDeleted, onSubmit, TITLE_LIMIT, 
  */
 export default function DashboardPage() {
   const location = useLocation();
-  const { user, token } = useAuth();
+  const { user, accessToken } = useAuth();
   const [blogs, setBlogs] = useState([]);
   const [loadingBlogs, setLoadingBlogs] = useState(false);
   const [showNewBlog, setShowNewBlog] = useState(false);

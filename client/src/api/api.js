@@ -8,15 +8,15 @@
 import axios from 'axios';
 
 // Base URL for backend API (env variable or hardcoded for development)
-const backendUrl = 'http://127.0.0.1:8000';
+const backendUrl = 'http://localhost:8000';
 
 
 export async function loginUser({ email, password }) {
   const formData = new URLSearchParams({ username: email, password })
-
   try {
     const response = await axios.post(`${backendUrl}/login`, formData, {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      withCredentials: true,
     });
     return response.data
   } catch (error) {
@@ -27,7 +27,6 @@ export async function loginUser({ email, password }) {
 
 export async function registerUser({ name, email, password }) {
   try {
-    const token = sessionStorage.getItem('token')
     const response = await axios.post(`${backendUrl}/users`, { name, email, password })
     return response.data
   } catch (error) {
@@ -35,15 +34,43 @@ export async function registerUser({ name, email, password }) {
   };
 }
 
+export async function refresh() {
+  const isLoggedIn = document.cookie.includes("is_logged_in=false")
+  if (!isLoggedIn) return null
+  try {
+    const response = await axios.post(`${backendUrl}/refresh`, {}, { withCredentials: true })
+    return response.data
+  }
+  catch (error) {
+    return null
+  }
+
+}
+
+export async function userLogout() {
+  const response = await axios.post(`${backendUrl}/logout`, {}, { withCredentials: true })
+    .catch(error => {
+      throw error
+    });
+  return response.data
+}
+
+
 
 export async function getUserId() {
   const response = await axios.get(`${backendUrl}/verify-user`, {
-  });
+  })
+    .catch(error => {
+      throw error
+    });
   return response.data
 };
 
 export async function getUserInfo(userid) {
   const response = await axios.get(`${backendUrl}/users/${userid}`)
+    .catch(error => {
+      throw error
+    })
   return response.data
 }
 
@@ -69,8 +96,6 @@ export async function createBlog({ title, tagline, about }) {
 
 export async function deleteBlog(blog_id) {
   const response = await axios.delete(`${backendUrl}/blogs/${blog_id}`, {
-    headers: { Authorization: `Bearer ${token}` },
-
   })
     .catch(error => {
       throw error;
@@ -80,8 +105,6 @@ export async function deleteBlog(blog_id) {
 
 export async function updateBlog(blog_id, { title, tagline, about }) {
   const response = await axios.put(`${backendUrl}/blogs/${blog_id}`, { title, tagline, about }, {
-    headers: { Authorization: `Bearer ${token}` },
-
   })
     .catch(error => {
       throw error;
@@ -103,7 +126,6 @@ export async function getBlogPosts(blog_id) {
 
 export async function createPost({ blog_id, title, content, published }) {
   const response = await axios.post(`${backendUrl}/posts/`, { blog_id, title, content, published }, {
-    headers: { Authorization: `Bearer ${token}` },
 
   })
     .catch(error => {
@@ -115,7 +137,6 @@ export async function createPost({ blog_id, title, content, published }) {
 
 export async function updatePost(post_id, { title, content, published }) {
   const response = await axios.put(`${backendUrl}/posts/${post_id}`, { title, content, published }, {
-    headers: { Authorization: `Bearer ${token}` },
 
   })
     .catch(error => {
@@ -133,9 +154,7 @@ export async function getPost(post_id) {
 
 
 export async function deletePost(post_id) {
-  const response = await axios.delete(`${backendUrl}/posts/${post_id}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
+  const response = await axios.delete(`${backendUrl}/posts/${post_id}`, {})
     .catch(error => {
       throw error;
     });
@@ -146,10 +165,7 @@ export async function deletePost(post_id) {
 export async function updateProfile(user_id, profile) {
   const response = await axios.patch(
     `${backendUrl}/users/${user_id}/profile`,
-    { email: profile.email, name: profile.name },
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    }
+    { email: profile.email, name: profile.name }
   )
     .catch(error => {
       throw error;
@@ -169,7 +185,6 @@ export async function changePassword(user_id, passwords) {
 
 export async function deleteUser(user_id) {
   const response = await axios.delete(`${backendUrl}/users/${user_id}`, {
-    headers: { Authorization: `Bearer ${token}` },
   })
     .catch(error => {
       throw error;

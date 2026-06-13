@@ -77,7 +77,7 @@ function PreviewPane({ title, body, blog, authorName, onClose }) {
  * Manages post state, auto-save, and renders editor UI
  */
 export default function EditorPage() {
-  const { user, token } = useAuth();
+  const { user, accessToken } = useAuth();
   const navigate = useNavigate()
   const {blogId, postId} = useParams();
 
@@ -138,6 +138,7 @@ export default function EditorPage() {
       setTimeout(() => setSaveLabel(""), 2500);
       isDirty.current = false;
     } catch (err) {
+      throw error
       showToast(err.message, "error");
     } finally {
       setSaving(false);
