@@ -166,5 +166,52 @@ export const Icons = {
         <circle cx="19" cy="12" r="2" />
     </svg>
   ),
+  bullet: (<svg xmlns="http://w3.org" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <circle cx="5" cy="6" r="0.75" fill="currentColor"/>
+  <circle cx="5" cy="12" r="0.75" fill="currentColor"/>
+  <circle cx="5" cy="18" r="0.75" fill="currentColor"/>
+  <line x1="10" y1="6" x2="19" y2="6"/>
+  <line x1="10" y1="12" x2="19" y2="12"/>
+  <line x1="10" y1="18" x2="19" y2="18"/>
+</svg>
+
+),
+  numbers:( 
+    <>
+        <svg xmlns="http://w3.org" viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <text x="2" y="7" fontFamily="Arial, sans-serif" fontSize="6" fontWeight="bold" fill="currentColor">1</text>
+          <line x1="8" y1="5" x2="22" y2="5" />
+          
+          <text x="2" y="14" fontFamily="Arial, sans-serif" fontSize="6" fontWeight="bold" fill="currentColor">2</text>
+          <line x1="8" y1="12" x2="22" y2="12" />
+          
+          <text x="2" y="21" fontFamily="Arial, sans-serif" fontSize="6" fontWeight="bold" fill="currentColor">3</text>
+          <line x1="8" y1="19" x2="22" y2="19" />
+        </svg>
+      </>
+    ), 
+  
+  alignleft:(
+    <svg xmlns="http://w3.org" width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="21" y1="6" x2="3" y2="6"></line>
+      <line x1="14" y1="12" x2="3" y2="12"></line>
+      <line x1="18" y1="18" x2="3" y2="18"></line>
+    </svg>
+  ),
+  alignCenter:(
+    <svg xmlns="http://w3.org" width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <line x1="21" y1="6" x2="3" y2="6"></line>
+  <line x1="17" y1="12" x2="7" y2="12"></line>
+  <line x1="19" y1="18" x2="5" y2="18"></line>
+    </svg>
+  ),
+  alignRight:(
+    <svg xmlns="http://w3.org" width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <line x1="21" y1="6" x2="3" y2="6"></line>
+  <line x1="21" y1="12" x2="9" y2="12"></line>
+  <line x1="21" y1="18" x2="5" y2="18"></line>
+</svg>
+
+  )
 
 };

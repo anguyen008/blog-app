@@ -180,11 +180,11 @@ function PostsPanel({ blog, onEdit, onNewPost }) {
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
   const [confirm, setConfirm] = useState(null);
-
   // Load posts when blog selection changes
   useEffect(() => {
     setLoading(true);
     api.getBlogPosts(blog.blog_id).then(setPosts).finally(() => setLoading(false));
+    
   }, [blog.blog_id]);
 
   async function handleDelete(post) {
@@ -237,14 +237,16 @@ function PostsPanel({ blog, onEdit, onNewPost }) {
         ) : (
           <div className="posts-list">
             {posts.map(post => (
-              <div key={post.post_id} className="post-row" onClick={() => onEdit(post.post_id)}>
+              <div key={post.post_id} className="post-row" onClick={() => {onEdit(post.post_id)}}>
+                
                 <div className="post-row-meta">
                   <div className="post-row-title">{post.title || "Untitled"}</div>
                   {post.body && <div className="post-row-excerpt">{post.body.substring(0, 140)}</div>}
-                  <div className="post-row-date">{formatDate(post.updatedAt)}</div>
+                  <div className="post-row-date">Last updated {formatDate(post.updated_at)}</div>
                 </div>
                 <div className="post-row-right">
-                  <span className={`pill ${post.status}`}>{post.status}</span>
+
+                  <span className={`pill ${post.published ? "published": "draft"}`}>{post.published ? "published": "draft"}</span>
                   <button
                     className="btn ghost sm icon-only"
                     onClick={e => { e.stopPropagation(); setConfirm(post); }}

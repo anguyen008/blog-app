@@ -118,6 +118,7 @@ export async function getBlogPosts(blog_id) {
     .catch(error => {
       throw error;
     });
+  console.log(response.data)
   return response.data
 
 }

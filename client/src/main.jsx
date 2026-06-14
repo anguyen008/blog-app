@@ -14,6 +14,7 @@ import './index.css'
 import App from './App.jsx'
 import { ToastContainer } from './components/UI.jsx'
 import {BrowserRouter} from "react-router-dom"
+import "prosemirror-view/style/prosemirror.css"; 
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

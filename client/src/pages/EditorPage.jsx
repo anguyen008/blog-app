@@ -11,15 +11,21 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
-import { Topbar, Brand, Icons, showToast, Spinner } from "../components/UI";
+import { Topbar, Brand, Icons, showToast, Spinner, ConfirmModal } from "../components/UI";
 import * as api from "../api/api";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
+import WordEditor from "../components/WordEditor";
+
 
 /**
  * Utility: Calculate word count in text
  */
 function wordCount(text) {
-  return text ? text.trim().split(/\s+/).filter(Boolean).length : 0;
+    const plainText = text
+    ? text.replace(/<[^>]+>/g, " ")
+    : "";
+
+  return plainText.trim().split(/\s+/).filter(Boolean).length;
 }
 
 /**
@@ -55,9 +61,9 @@ function PreviewPane({ title, body, blog, authorName, onClose }) {
         <h1 style={{ fontFamily: "var(--ff-display)", fontSize: 38, fontWeight: 500, lineHeight: 1.2, marginBottom: 32, letterSpacing: "-0.3px" }}>
           {title || <em style={{ color: "var(--ink4)" }}>Untitled</em>}
         </h1>
-        <div style={{ fontFamily: "var(--ff-display)", fontSize: 20, lineHeight: 1.85, color: "var(--ink)", whiteSpace: "pre-wrap" }}>
-          {body || <em style={{ color: "var(--ink4)" }}>No content yet.</em>}
-        </div>
+        <div style={{fontFamily: "var(--ff-display)", fontSize: 20, lineHeight: 1.85,color: "var(--ink)",}}
+        dangerouslySetInnerHTML={{__html:body || "<em style='color: var(--ink4)'>No content yet.</em>",}}
+/>
         <div style={{ marginTop: 56, paddingTop: 24, borderTop: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 14 }}>
           <div style={{ width: 40, height: 40, borderRadius: "50%", background: "var(--accent-bg)", color: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 500 }}>
             {authorName ? authorName.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase() : "?"}
@@ -88,9 +94,11 @@ export default function EditorPage() {
   // UI state
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [publish, setPublish] = useState(false)
   const [saveLabel, setSaveLabel] = useState(""); // "✓ Saved" or "✓ Published"
   const [preview, setPreview] = useState(false);
   const [currentPostId, setCurrentPostId] = useState(postId || null);
+  const [confirm, setConfirm] = useState(null)
   // Auto-save mechanism
   const autoSaveTimer = useRef(null);
   const isDirty = useRef(false);
@@ -108,7 +116,7 @@ export default function EditorPage() {
       // Load existing post if editing
       if (postId) {
         const post = await api.getPost(currentPostId);
-        setTitle(post.title); setBody(post.content); setStatus(post.published ? "published" : "draft");
+        setTitle(post.title); setBody(post.content); setStatus(post.published ? "published" : "draft"), setPublish(post.published);
       }
       setLoading(false);
     }
@@ -121,8 +129,6 @@ export default function EditorPage() {
    */
   const save = useCallback(async (forcedStatus) => {
     const s = (forcedStatus || status) === "published";
-    setSaving(true);
-    setSaveLabel("");
     try {
       // Create new post or update existing
       if (currentPostId) {
@@ -144,19 +150,6 @@ export default function EditorPage() {
       setSaving(false);
     }
   }, [title, body, status, currentPostId, blogId]);
-
-  /**
-   * Handle body text changes with auto-save (debounced)
-   * Waits 2 seconds of inactivity before auto-saving
-   */
-  function onBodyChange(e) {
-    setBody(e.target.value);
-    isDirty.current = true;
-    clearTimeout(autoSaveTimer.current);
-    autoSaveTimer.current = setTimeout(() => {
-      if (isDirty.current) save();
-    }, 2000);
-  }
 
   /**
    * Handle title changes with auto-save (debounced)
@@ -216,13 +209,18 @@ export default function EditorPage() {
 
         {/* editor body */}
         <div className="editor-body">
-          <textarea
-            className="editor-textarea"
-            placeholder="Start writing… let the ideas flow."
-            value={body}
-            onChange={onBodyChange}
-            autoFocus={!postId}
-          />
+          <WordEditor
+            content={body}
+            published={publish}
+            onChange={(html) => {
+              setBody(html);
+              isDirty.current = true;
+          clearTimeout(autoSaveTimer.current);
+            autoSaveTimer.current = setTimeout(() => {
+            if (isDirty.current) save();
+      }, 2000);
+    }}
+  />
         </div>
 
         {/* editor footer */}
@@ -235,14 +233,33 @@ export default function EditorPage() {
             <button className="btn ghost" onClick={() => setPreview(true)}>
               {Icons.eye} Preview
             </button>
-            <button className="btn" onClick={() => {save("draft");}} disabled={saving}>
+            <button className="btn" onClick={() => { save("draft")}} disabled={publish || saving}>
               Save draft
             </button>
-            <button className="btn primary" onClick={() => save("published")} disabled={saving}>
-              {status === "published" ? "Update" : "Publish"}
+            <button className="btn primary" onClick={() => {setConfirm(true)}} disabled={saving}>
+              {status === "published" ? "Unpublish" : "Publish"}
             </button>
           </div>
         </div>
+
+
+        {confirm && !(status === "published") && <ConfirmModal
+                  title="Publish post?"
+                  message={`"${title || "Untitled"}" will be published publicly.`}
+                  confirmLabel="Publish"
+                  onConfirm={() =>{ save("published"); setConfirm(null); setPublish(true)}}
+                  onCancel={() => setConfirm(null)}
+                />}
+
+        {confirm && (status === "published") && <ConfirmModal
+                  title="Unpublish post?"
+                  message={`"${title || "Untitled"}" will be unpublished.`}
+                  confirmLabel="Unpublish"
+                  onConfirm={() =>{ save("draft"); setConfirm(null); setPublish(false)}}
+                  onCancel={() => setConfirm(null)}
+                />}
+
+
       </div>
     </>
   );

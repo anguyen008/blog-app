@@ -103,5 +103,6 @@ class PostResponse(PostBase):
     model_config = ConfigDict(from_attributes=True)
     post_id: uuid.UUID
     created_at: datetime
+    updated_at: datetime
     blog: BlogResponse
     author: UserResponse
