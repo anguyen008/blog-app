@@ -33,7 +33,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await register(form);
-      navigate("/dashboard")
+      navigate("/")
     } catch (err) {
         setError(err.response?.data?.detail);
     } finally {

@@ -466,6 +466,7 @@ body {
 .dashboard {
   display: flex;
   flex: 1;
+  align-items: flex-start;
   min-height: 0;
 }
 
@@ -489,7 +490,7 @@ body {
   text-transform: uppercase;
   color: var(--ink4);
   font-weight: 500;
-  padding: 14px 20px 5px;
+  padding: 0px 20px 5px;
 }
 .sidebar-item {
   display: flex;
@@ -993,7 +994,7 @@ body {
   border-bottom: 1px solid var(--border);
   background: var(--paper);
   position: sticky;
-  top: 56px; /*sits just below topbar */
+
   z-index: 99;
 }
 

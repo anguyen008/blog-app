@@ -233,7 +233,7 @@ export default function EditorPage() {
             <button className="btn ghost" onClick={() => setPreview(true)}>
               {Icons.eye} Preview
             </button>
-            <button className="btn" onClick={() => { save("draft")}} disabled={publish || saving}>
+            <button className="btn" onClick={() => {save("draft")}} disabled={publish || saving}>
               Save draft
             </button>
             <button className="btn primary" onClick={() => {setConfirm(true)}} disabled={saving}>

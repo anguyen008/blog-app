@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 export default function PublicRoute({ children }) {
     const { user } = useAuth();
 
-    if (user) return <Navigate to="/dashboard/my-blogs" replace />;
+    if (user) return <Navigate to="/" replace />;
 
     return children;
 }

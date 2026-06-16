@@ -17,7 +17,6 @@ import EditorPage from "./pages/EditorPage";
 import {Routes, Route} from "react-router-dom"
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
-import UserSettingsPanel from "./pages/UserSettings";
 
 export default function App() {
 
@@ -26,13 +25,11 @@ export default function App() {
     <AuthProvider>
       <div className="app-root">
         <Routes>
-         <Route path="/" element={<PublicRoute><LoginPage /></PublicRoute>} />
           <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
           <Route path="/sign-up" element={<PublicRoute><RegisterPage /></PublicRoute>} />
-        <Route path = "/dashboard/blog/:blogId/posts/editor/:postId" element={<ProtectedRoute><EditorPage/></ProtectedRoute>}/>
-        <Route path = "/dashboard/blog/:blogId/posts/editor" element={<ProtectedRoute><EditorPage/></ProtectedRoute>}/>
-        <Route path = "/dashboard/*" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>}/>
-        <Route path = "/user/settings" element={<ProtectedRoute><UserSettingsPanel/></ProtectedRoute>}/>
+        <Route path = "/blog/:blogId/posts/editor/:postId" element={<ProtectedRoute><EditorPage/></ProtectedRoute>}/>
+        <Route path = "/blog/:blogId/posts/editor" element={<ProtectedRoute><EditorPage/></ProtectedRoute>}/>
+        <Route path = "/*" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>}/>
       </Routes>
       </div>
     </AuthProvider>

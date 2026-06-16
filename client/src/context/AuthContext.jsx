@@ -45,32 +45,30 @@ export const AuthProvider = ({children}) => {
         }
     };
 
-
-
+    async function restoreUser(){
+        const token = await refreshAccessToken();
+        if (!token) {
+            setLoading(false)
+            return;
+        }
+        try{
+            const response  = await getUserId(); // this verifies the token
+            const getUser = await getUserInfo(response.user_id)
+            setUser(getUser);
+            
+        } catch(error) {
+            setAccessToken(null)
+            setUser(null);
+        }
+        finally{
+            setLoading(false)
+        }            
+    };
 
     useEffect(() => {
-        async function restoreUser(){
-            const token = await refreshAccessToken();
-            if (!token) {
-               setLoading(false)
-                return;
-            }
-            try{
-                const response  = await getUserId(); // this verifies the token
-                const getUser = await getUserInfo(response.user_id)
-                setUser(getUser);
-                
-            } catch(error) {
-                setAccessToken(null)
-                setUser(null);
-            }
-            finally{
-                setLoading(false)
-            }            
-        };
         restoreUser();
-
     }, []);
+
 
     const register = async ({name, email, password})=> {
         await registerUser({name, email, password});
@@ -97,7 +95,7 @@ export const AuthProvider = ({children}) => {
     }
     return(
         
-        <AuthContext.Provider value={{user, accessToken, loading, register, login, logout}}>
+        <AuthContext.Provider value={{user, restoreUser, accessToken, loading, register, login, logout}}>
         {children}
         </AuthContext.Provider>
     );

@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../context/AuthContext";
-import { Icons, showToast } from "../components/UI";
-import * as api from "../api/api";
+import { useAuth } from "../../context/AuthContext";
+import { Icons, showToast } from "../../components/UI";
+import * as api from "../../api/api";
 import { useNavigate } from "react-router-dom";
 
 export default function UserSettingsPanel() {
-  const { user, logout } = useAuth();
+  const { user, restoreUser, logout } = useAuth();
   const [tab, setTab] = useState("profile")
   const [form, setForm] = useState({
      email: user.email, name: user.name,
@@ -28,6 +28,7 @@ export default function UserSettingsPanel() {
     try {
       const updated = await api.updateProfile(user.user_id, form);
       showToast("Profile updated", "success");
+      await restoreUser()
     } catch (err) { setError(err.message); }
     finally { setSaving(false); }
   }

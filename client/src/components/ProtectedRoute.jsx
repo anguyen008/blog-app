@@ -11,7 +11,7 @@ export default function ProtectedRoute({ children }) {
         return <div className="page-loading"><Spinner></Spinner> </div>
 
     if (!user) {
-        return <Navigate to="/" replace />;  // redirects if not logged in
+        return <Navigate to="/login" replace />;  // redirects if not logged in
     }
     
     return children;
