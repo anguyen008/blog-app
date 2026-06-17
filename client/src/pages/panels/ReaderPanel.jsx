@@ -1,7 +1,6 @@
-// src/panels/ReaderPanel.jsx
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Spinner } from "../../components/UI";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Spinner, Icons } from "../../components/UI";
 import * as api from "../../api/api";
 
 function formatDate(iso) {
@@ -67,6 +66,9 @@ function Avatar({ name, size = 40 }) {
 
 export default function ReaderPanel({ blogId, postId }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const fromBlogId = location.state?.fromBlogId ?? null;
+
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -79,10 +81,6 @@ export default function ReaderPanel({ blogId, postId }) {
       .catch((err) => console.error("ReaderPanel load error:", err))
       .finally(() => setLoading(false));
   }, [postId]);
-
-  useEffect(() => {
-    console.log(blogId);
-  });
 
   if (loading) {
     return (
@@ -104,13 +102,39 @@ export default function ReaderPanel({ blogId, postId }) {
 
   return (
     <div className="settings-page fade-up" style={{ maxWidth: "none" }}>
-      <button
-        className="btn ghost"
-        onClick={() => navigate(`/home/blogs/${blogId}`)}
-        style={{ marginBottom: 20 }}
+      {/* ── header actions ── */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: 20,
+          flexWrap: "wrap",
+          gap: 10,
+        }}
       >
-        ← Back to {post.blog?.title || "blog"}
-      </button>
+        {fromBlogId ? (
+          <button
+            className="btn ghost"
+            onClick={() => navigate(`/home/blogs/${fromBlogId}`)}
+          >
+            {Icons.back} Back to blog
+          </button>
+        ) : (
+          <button className="btn ghost" onClick={() => navigate("/home")}>
+            {Icons.back} Home
+          </button>
+        )}
+
+        <button
+          className="btn"
+          onClick={() =>
+            navigate(`/home/blogs/${blogId}`, { state: { fromPostId: postId } })
+          }
+        >
+          {Icons.grid} View blog
+        </button>
+      </div>
 
       <div
         style={{
@@ -121,7 +145,7 @@ export default function ReaderPanel({ blogId, postId }) {
           marginBottom: 16,
         }}
       >
-        {post.blog?.title} · {formatDate(post.published_at)}
+        {post.blog?.title} · {formatDate(post.updated_at)}
       </div>
 
       <h1

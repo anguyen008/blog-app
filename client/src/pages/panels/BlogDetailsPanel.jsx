@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Spinner } from "../../components/UI";
 import * as api from "../../api/api";
 
@@ -60,9 +60,13 @@ function Avatar({ name, size = 30 }) {
 
 export default function BlogDetailPanel({ blogId }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const fromPostId = location.state?.fromPostId ?? null;
+
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState([]);
+
   useEffect(() => {
     if (!blogId) return;
     setLoading(true);
@@ -96,20 +100,41 @@ export default function BlogDetailPanel({ blogId }) {
     );
   }
 
-  // Map your API data properties here so your JSX can find them
   const selected = blog;
   const onReadPost = (post) =>
-    navigate(`/home/blogs/${blog.blog_id}/posts/${post.post_id}`);
+    navigate(`/home/blogs/${blog.blog_id}/posts/${post.post_id}`, {
+      state: { fromBlogId: blog.blog_id },
+    });
 
   return (
     <div className="blogs-page fade-up">
-      <button
-        className="btn ghost"
-        onClick={() => navigate("/home")}
-        style={{ marginBottom: 20 }}
+      {/* ── header actions ── */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: 20,
+          flexWrap: "wrap",
+          gap: 10,
+        }}
       >
-        ← Back to Home
-      </button>
+        <button className="btn ghost" onClick={() => navigate("/home")}>
+          ← Back to Home
+        </button>
+
+        {fromPostId && (
+          <button
+            className="btn"
+            onClick={() =>
+              navigate(`/home/blogs/${blogId}/posts/${fromPostId}`)
+            }
+          >
+            ↩ Back to post
+          </button>
+        )}
+      </div>
+
       <div className="settings-section" style={{ background: "#f0e6c6" }}>
         <div
           style={{
