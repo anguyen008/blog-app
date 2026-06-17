@@ -38,7 +38,7 @@ def login(
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=False,
+        secure=True,
         samesite="lax",
         max_age=604800,
         path="/",
