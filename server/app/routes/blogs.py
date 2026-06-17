@@ -65,7 +65,7 @@ def get_posts(
 
 @router.get("/{user_id}/user", response_model=List[schemas.BlogResponse])
 def get_user_blogs(
-    user_id=uuid.UUID,
+    user_id: uuid.UUID,
     db: Session = Depends(get_db),
 ):
     """Retrieve all blogs by user id"""
