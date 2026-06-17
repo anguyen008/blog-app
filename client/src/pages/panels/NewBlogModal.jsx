@@ -8,7 +8,7 @@ import * as api from "../../api/api";
  * NewBlogModal - Modal for creating a new blog
  * Collects blog name, tagline, and optional about description
  */
-export default function NewBlogModal({ userId, onCreated, onClose, TITLE_LIMIT, TAGLINE_LIMIT, CHARACTER_LIMIT }) {
+export default function NewBlogModal({onCreated, onClose, TITLE_LIMIT, TAGLINE_LIMIT, CHARACTER_LIMIT }) {
   const [form, setForm] = useState({ name: "", tagline: "", about: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);

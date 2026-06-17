@@ -80,6 +80,8 @@ class BlogResponse(BlogBase):
     created_at: datetime
     number_of_posts: int
     author: UserResponse
+    updated_at: datetime
+    number_of_published_posts: int
 
 
 class PostBase(BaseModel):

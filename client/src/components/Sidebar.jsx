@@ -40,9 +40,9 @@ export default function Sidebar({ blogs = [], onNewBlog }) {
     <nav className="sidebar">
 
       <div className="sidebar-section">Discover</div>
-      {item("home",     "Home", Icons.house, () => navigate("/home"))}
-      {item("followed",     "Followed blogs", Icons.follow, () => navigate("/followed"))}
-      {item("liked",     "Liked Posts", Icons.heart, () => navigate("/liked"))}
+      {item("home", "Home", Icons.house, () => navigate("/home"))}
+      {item("followed", "Followed blogs", Icons.follow, () => navigate("/followed"))}
+      {item("liked",  "Liked Posts", Icons.heart, () => navigate("/liked"))}
       <div className="sidebar-divider" />
 
       <div className="sidebar-section">My Blogs</div>

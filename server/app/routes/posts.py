@@ -1,7 +1,7 @@
 from ast import stmt
 
 from fastapi import Depends, HTTPException, status, Response, APIRouter
-from .. import models, schemas, utils, oauth2
+from .. import models, schemas, oauth2
 from sqlalchemy.orm import Session
 from sqlalchemy import select, text, or_
 from ..database import get_db
@@ -11,10 +11,9 @@ from typing import List
 router = APIRouter(prefix="/posts", tags=["Posts"])
 
 
-@router.get("/posts", response_model=List[schemas.PostResponse])
+@router.get("/public", response_model=List[schemas.PostResponse])
 def get_visible_posts(
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(oauth2.get_current_user),
 ):
     # This single query enforces your exact rules:
     # 1. PostModel.is_published == True -> Anyone can see these
@@ -22,11 +21,24 @@ def get_visible_posts(
     posts = (
         db.query(models.Post)
         .filter(
-            or_(models.Post.published == True, models.Post.author_id == current_user.id)
+            or_(
+                models.Post.published == True,
+            )
         )
         .all()
     )
 
+    return posts
+
+
+@router.get("/{blog_id}/public", response_model=List[schemas.PostResponse])
+def get_public_posts(blog_id: uuid.UUID, db: Session = Depends(get_db)):
+    """Retrieve all published posts of a blog. Demonstrates: ORM query, response model serialization"""
+    posts = (
+        db.query(models.Post)
+        .filter(models.Post.blog_id == blog_id, models.Post.published == True)
+        .all()
+    )
     return posts
 
 

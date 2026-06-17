@@ -1,7 +1,7 @@
 # SQLAlchemy ORM models representing database tables
 from sqlalchemy.orm import relationship, column_property
 from .database import Base
-from sqlalchemy import Column, ForeignKey, String, UUID, text, func, select
+from sqlalchemy import Column, ForeignKey, String, UUID, text, func, select, Boolean
 import uuid
 from sqlalchemy.sql.sqltypes import TIMESTAMP
 from sqlalchemy.dialects.postgresql import UUID
@@ -83,7 +83,7 @@ class Post(Base):
     )
     title = Column(String, index=True, nullable=False)
     content = Column(String, nullable=False)
-    published = Column(String, nullable=False, default="false")
+    published = Column(Boolean, nullable=False, default=False)
     author_id = Column(
         UUID, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False
     )  # Foreign key to Blogs
@@ -107,6 +107,13 @@ class Post(Base):
 Blog.number_of_posts = column_property(
     select(func.count(Post.post_id))
     .where(Post.blog_id == Blog.blog_id)
+    .correlate_except(Post)
+    .scalar_subquery()
+)
+
+Blog.number_of_published_posts = column_property(
+    select(func.count(Post.post_id))
+    .where(Post.blog_id == Blog.blog_id, Post.published == True)
     .correlate_except(Post)
     .scalar_subquery()
 )

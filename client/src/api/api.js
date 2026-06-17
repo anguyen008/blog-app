@@ -76,7 +76,7 @@ export async function getUserInfo(userid) {
 
 
 export async function getUserBlogs(userid) {
-  const response = await axios.get(`${backendUrl}/blogs/${userid}`)
+  const response = await axios.get(`${backendUrl}/blogs/${userid}/user`)
     .catch(error => {
       throw error;
     });
@@ -192,4 +192,48 @@ export async function deleteUser(user_id) {
       throw error;
     });
   return response.status
+}
+
+
+export async function getPublicPosts() {
+  const response = await axios.get(`${backendUrl}/posts/public`)
+    .catch(error => {
+      throw error;
+    });
+  return response.data
+}
+
+export async function getAllBlogs() {
+  const response = await axios.get(`${backendUrl}/blogs`)
+    .catch(error => {
+      throw error;
+    });
+  return response.data
+}
+
+
+export async function getPublicBlog(blog_id) {
+  const response = await axios.get(`${backendUrl}/blogs/${blog_id}/public`)
+    .catch(error => {
+      throw error;
+    });
+  return response.data
+}
+
+
+export async function getPostsforBlog(blog_id) {
+  const response = await axios.get(`${backendUrl}/posts/${blog_id}/public`)
+    .catch(error => {
+      throw error;
+    });
+  return response.data
+}
+
+
+export async function getPublicPost(post_id) {
+  const response = await axios.get(`${backendUrl}/posts/${post_id}/`)
+    .catch(error => {
+      throw error;
+    });
+  return response.data
 }

@@ -4,13 +4,13 @@ import { Icons } from "../components/UI";
 export default function Subnav({ blogs = [] }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const path     = location.pathname;
+  const path = location.pathname;
 
   const activeBlogId = path.includes("/blog/")
     ? path.split("/blog/")[1]?.split("/")[0]
     : null;
 
-  const activeBlog = blogs.find(b => b.blog_id === activeBlogId);
+  const activeBlog = blogs.find((b) => b.blog_id === activeBlogId);
 
   // only show when inside a blog
   if (!activeBlog) return null;

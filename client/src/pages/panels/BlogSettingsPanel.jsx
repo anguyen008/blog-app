@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
-import { Icons, showToast } from "../../components/UI";
+import { Icons, showToast, ConfirmModal} from "../../components/UI";
 import { useAuth } from "../../context/AuthContext";
-
+import * as api from "../../api/api";
 
 /**
  * BlogSettingsPanel - Edit blog settings and delete option
  * Allows updating blog name, tagline, about; with danger zone for deletion
  */
-export default function BlogSettingsPanel({ blog, onUpdated, onDeleted, onSubmit, TITLE_LIMIT, TAGLINE_LIMIT, CHARACTER_LIMIT }) {
+export default function BlogSettingsPanel({ blog, onUpdated, onDeleted, TITLE_LIMIT, TAGLINE_LIMIT, CHARACTER_LIMIT }) {
   const [form, setForm] = useState({ name: blog.title, tagline: blog.tagline || "", about: blog.about || "" });
   const [saving, setSaving] = useState(false);
   const [confirm, setConfirm] = useState(false);
@@ -29,7 +29,6 @@ export default function BlogSettingsPanel({ blog, onUpdated, onDeleted, onSubmit
       showToast(err.message, "error");
     } finally {
       setSaving(false);
-      onSubmit("posts")
     }
   }
 
@@ -56,7 +55,7 @@ export default function BlogSettingsPanel({ blog, onUpdated, onDeleted, onSubmit
         <h2>Blog Settings</h2>
         <div className="settings-section">
           <h3>Publication details</h3>
-          <form onSubmit={save}>
+          <form >
             <div className="settings-fields">
               <div className="field"><label>Blog name *</label><input maxLength={TITLE_LIMIT} type="text" value={form.name} onChange={set("name")} /></div>
                 <span style={{ textAlign: "right", fontSize: "12px", color: "#666" }}>

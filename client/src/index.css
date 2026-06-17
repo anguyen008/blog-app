@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&display=swap");
 
 *,
 *::before,
@@ -23,6 +24,7 @@
   --border2: rgba(19, 17, 15, 0.22);
   --success-bg: #eaf3de;
   --success: #3b6d11;
+  --ff-title: "Fraunces", Georgia, serif;
   --ff-display: "Cormorant Garamond", Georgia, serif;
   --ff-ui: "DM Sans", system-ui, sans-serif;
   --radius: 8px;
@@ -385,7 +387,7 @@ body {
   font-size: 32px;
 }
 .auth-title {
-  font-family: var(--ff-display);
+  font-family: var(--ff-title);
   font-size: 22px;
   font-weight: 500;
   margin-bottom: 4px;
@@ -444,7 +446,7 @@ body {
   margin-bottom: 8px;
 }
 .setup-title {
-  font-family: var(--ff-display);
+  font-family: var(--ff-title);
   font-size: 28px;
   font-weight: 500;
   margin-bottom: 6px;
@@ -465,9 +467,8 @@ body {
 /* ── DASHBOARD ──────────────────────────────── */
 .dashboard {
   display: flex;
-  flex: 1;
   align-items: flex-start;
-  min-height: 0;
+  min-height: calc(100vh - 56px);
 }
 
 /* sidebar */
@@ -480,9 +481,10 @@ body {
   flex-direction: column;
   background: var(--paper);
   position: sticky;
-  top: 56px;
+  top: 56px; /* topbar only - subnav lives inside main-area */
   height: calc(100vh - 56px);
   overflow-y: auto;
+  z-index: 10;
 }
 .sidebar-section {
   font-size: 10px;
@@ -538,12 +540,14 @@ body {
 .main-area {
   flex: 1;
   overflow-y: auto;
+  height: calc(
+    100vh - 56px
+  ); /* matches sidebar height so both scroll independently */
 }
 
 /* ── BLOG LIST (dashboard home) ─────────────── */
 .blogs-page {
   padding: 32px;
-  max-width: 860px;
 }
 .blogs-header {
   display: flex;
@@ -565,7 +569,7 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 16px;
-  width: calc(100vw - 260px);
+  width: 100%; /* fills main-area, sidebar width handled by flex */
   padding: clamp(12px, 2vw, 24px);
   box-sizing: border-box;
 }
@@ -587,6 +591,7 @@ body {
     transform 0.2s;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 10px;
 }
 .blog-card:hover {
@@ -609,12 +614,13 @@ body {
 .blog-card-meta {
   margin-top: auto;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
   font-size: 12px;
   color: var(--ink4);
   padding-top: 12px;
   border-top: 1px solid var(--border);
+  width: 100%;
 }
 .blog-card-new {
   background: transparent;
@@ -646,7 +652,7 @@ body {
   align-items: flex-start;
   justify-content: space-between;
   position: sticky;
-  top: 0;
+  top: 42px; /* sits below subnav (42px) when subnav is visible */
   background: var(--paper);
   z-index: 5;
   gap: 24px;
@@ -694,7 +700,7 @@ body {
   min-width: 0;
 }
 .post-row-title {
-  font-family: var(--ff-display);
+  font-family: var(--ff-title);
   font-size: 16px;
   font-weight: 500;
   margin-bottom: 4px;
@@ -764,7 +770,7 @@ body {
 }
 .editor-title-input {
   flex: 1;
-  font-family: var(--ff-display);
+  font-family: var(--ff-title);
   font-size: 22px;
   font-weight: 500;
   background: transparent;
@@ -969,20 +975,7 @@ body {
 .popover-menu-button:hover {
   background: #f1eee5;
 }
-.blog-card-meta {
-  position: relative; /* anchor popovers to the meta row instead */
-}
-
-.popover-anchor {
-  position: static; /* remove this from flow */
-}
-
-.popover-menu {
-  position: absolute;
-  right: -20px;
-  top: calc(85%); /* sits just below the meta row */
-  /* ... rest of your styles */
-}
+/* popover anchors to topbar-right, not blog-card-meta */
 
 /* ── SUBNAV ─────────────────────────────────── */
 .subnav {
@@ -994,8 +987,9 @@ body {
   border-bottom: 1px solid var(--border);
   background: var(--paper);
   position: sticky;
-
-  z-index: 99;
+  top: 0; /* sticks to top of .main-area scroll container */
+  z-index: 9; /* below topbar (z-index:100) but above content */
+  flex-shrink: 0;
 }
 
 .subnav-item {
@@ -1184,4 +1178,44 @@ body {
   height: 18px;
   background: var(--border);
   margin: 0 6px;
+}
+
+/*______________POST Grid____________*/
+.posts-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1000px) {
+  .posts-grid {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .posts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.post-card {
+  background: #f0e6c6;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  padding: 20px;
+  cursor: pointer;
+  transition:
+    box-shadow 0.2s,
+    border-color 0.2s,
+    transform 0.2s;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.post-card:hover {
+  box-shadow: var(--shadow-lg);
+  border-color: var(--border2);
+  transform: translateY(-2px);
+  z-index: 10;
 }

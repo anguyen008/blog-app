@@ -17,28 +17,7 @@ def get_blogs(db: Session = Depends(get_db)):
     return blogs
 
 
-@router.get("/{blog_id}/posts", response_model=List[schemas.PostResponse])
-def get_posts(blog_id: uuid.UUID, db: Session = Depends(get_db)):
-    """Retrieve all posts of a blog. Demonstrates: ORM query, response model serialization"""
-    posts = db.query(models.Post).filter(models.Post.blog_id == blog_id).all()
-    return posts
-
-
-@router.get("/{user_id}", response_model=List[schemas.BlogResponse])
-def get_user_blogs(
-    user_id=uuid.UUID,
-    db: Session = Depends(get_db),
-):
-    """Retrieve all blogs by user id"""
-    blogs = db.query(models.Blog).filter(models.Blog.author_id == user_id).all()
-    if blogs is None:
-        raise HTTPException(
-            status_code=404, detail=f"Blogs with uuid {user_id} not found"
-        )
-    return blogs
-
-
-@router.get("/{blog_id}", response_model=schemas.BlogResponse)
+@router.get("/{blog_id}/public", response_model=schemas.BlogResponse)
 def read_blog(
     blog_id: uuid.UUID,
     db: Session = Depends(get_db),
@@ -51,6 +30,31 @@ def read_blog(
             status_code=404, detail=f"Blog with uuid {blog_id} not found"
         )
     return blog
+
+
+@router.get("/{blog_id}/posts", response_model=List[schemas.PostResponse])
+def get_posts(
+    blog_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(oauth2.get_current_user),
+):
+    """Retrieve all posts of a blog. Demonstrates: ORM query, response model serialization"""
+    posts = db.query(models.Post).filter(models.Post.blog_id == blog_id).all()
+    return posts
+
+
+@router.get("/{user_id}/user", response_model=List[schemas.BlogResponse])
+def get_user_blogs(
+    user_id=uuid.UUID,
+    db: Session = Depends(get_db),
+):
+    """Retrieve all blogs by user id"""
+    blogs = db.query(models.Blog).filter(models.Blog.author_id == user_id).all()
+    if blogs is None:
+        raise HTTPException(
+            status_code=404, detail=f"Blogs with uuid {user_id} not found"
+        )
+    return blogs
 
 
 @router.post(
