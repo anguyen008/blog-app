@@ -140,11 +140,6 @@ export default function DashboardPage() {
     showToast("Blog deleted", "success");
   }
 
-  useEffect(() => {
-    console.log(selectedBlogId);
-    console.log();
-  }, [panel]);
-
   return (
     <>
       {showNewBlog && (

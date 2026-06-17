@@ -118,7 +118,6 @@ export async function getBlogPosts(blog_id) {
     .catch(error => {
       throw error;
     });
-  console.log(response.data)
   return response.data
 
 }
@@ -132,7 +131,6 @@ export async function createPost({ blog_id, title, content, published }) {
     .catch(error => {
       throw error;
     });
-  console.log("Hello")
   return response.data
 }
 
