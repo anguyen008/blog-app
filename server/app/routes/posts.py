@@ -49,7 +49,11 @@ def read_post(
 ):
     """Retrieve specific post by ID. Demonstrates ORM query"""
 
-    post = db.query(models.Post).filter(models.Post.post_id == post_id).first()
+    post = (
+        db.query(models.Post)
+        .filter(models.Post.post_id == post_id, models.Post.published == True)
+        .first()
+    )
     if post is None:
         raise HTTPException(
             status_code=404, detail=f"Post with uuid {post_id} not found"

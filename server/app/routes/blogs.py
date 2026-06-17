@@ -1,6 +1,6 @@
 from fastapi import Depends, HTTPException, status, Response, APIRouter
 from .. import models, schemas, oauth2
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import update, delete
 from ..database import get_db
 import uuid
@@ -38,8 +38,28 @@ def get_posts(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(oauth2.get_current_user),
 ):
+
+    blog = (
+        db.query(models.Blog)
+        .filter(models.Blog.id == blog_id, models.Blog.user_id == current_user.id)
+        .first()
+    )
+    if not blog:
+        raise HTTPException(
+            status_code=403,
+            detail=f"Blog with id {blog_id} you don't have access",
+        )
+
     """Retrieve all posts of a blog. Demonstrates: ORM query, response model serialization"""
-    posts = db.query(models.Post).filter(models.Post.blog_id == blog_id).all()
+    posts = (
+        db.query(models.Post)
+        .filter(models.Post.blog_id == blog_id)
+        .options(
+            joinedload(models.Post.author),  # adjust to your actual relationship names
+            joinedload(models.Post.blog),
+        )
+        .all()
+    )
     return posts
 
 
