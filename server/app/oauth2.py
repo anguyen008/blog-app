@@ -27,7 +27,7 @@ def create_access_token(data: dict, expires_delta: int = ACCESS_TOKEN_EXPIRE_MIN
     - Contains user_id and expiration (exp) claim
     """
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + timedelta(seconds=expires_delta)
+    expire = datetime.now(timezone.utc) + timedelta(minutes=expires_delta)
     to_encode.update({"exp": int(expire.timestamp())})  # exp must be a UNIX timestamp
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
