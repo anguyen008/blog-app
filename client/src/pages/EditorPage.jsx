@@ -83,7 +83,7 @@ function PreviewPane({ title, body, blog, authorName, onClose }) {
  * Manages post state, auto-save, and renders editor UI
  */
 export default function EditorPage() {
-  const { user, accessToken } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate()
   const {blogId, postId} = useParams();
 

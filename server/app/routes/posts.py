@@ -42,8 +42,8 @@ def get_public_posts(blog_id: uuid.UUID, db: Session = Depends(get_db)):
     return posts
 
 
-@router.get("/{post_id}", response_model=schemas.PostResponse)
-def read_post(
+@router.get("/{post_id}/post/public", response_model=schemas.PostResponse)
+def get_public_post(
     post_id: uuid.UUID,
     db: Session = Depends(get_db),
 ):
@@ -57,6 +57,28 @@ def read_post(
     if post is None:
         raise HTTPException(
             status_code=404, detail=f"Post with uuid {post_id} not found"
+        )
+
+    return post
+
+
+@router.get("/{post_id}", response_model=schemas.PostResponse)
+def read_post(
+    post_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(oauth2.get_current_user),
+):
+    """Retrieve specific post by ID. Demonstrates ORM query"""
+
+    post = db.query(models.Post).filter(models.Post.post_id == post_id).first()
+    if post is None:
+        raise HTTPException(
+            status_code=404, detail=f"Post with uuid {post_id} not found"
+        )
+
+    if str(post.author_id) != str(current_user.user_id):
+        raise HTTPException(
+            status_code=403, detail=f"Not authorized to create post for this blog"
         )
     return post
 

@@ -11,10 +11,13 @@ import axios from 'axios';
 const backendUrl = 'http://localhost:8000';
 
 
+export const api = axios.create({ baseURL: backendUrl, withCredentials: true })
+
+
 export async function loginUser({ email, password }) {
   const formData = new URLSearchParams({ username: email, password })
   try {
-    const response = await axios.post(`${backendUrl}/login`, formData, {
+    const response = await api.post(`${backendUrl}/login`, formData, {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       withCredentials: true,
     });
@@ -27,7 +30,7 @@ export async function loginUser({ email, password }) {
 
 export async function registerUser({ name, email, password }) {
   try {
-    const response = await axios.post(`${backendUrl}/users`, { name, email, password })
+    const response = await api.post(`${backendUrl}/users`, { name, email, password })
     return response.data
   } catch (error) {
     throw error;
@@ -38,7 +41,7 @@ export async function refresh() {
   const isLoggedIn = document.cookie.includes("is_logged_in=false")
   if (!isLoggedIn) return null
   try {
-    const response = await axios.post(`${backendUrl}/refresh`, {}, { withCredentials: true })
+    const response = await api.post(`${backendUrl}/refresh`, {}, { withCredentials: true })
     return response.data
   }
   catch (error) {
@@ -48,7 +51,7 @@ export async function refresh() {
 }
 
 export async function userLogout() {
-  const response = await axios.post(`${backendUrl}/logout`, {}, { withCredentials: true })
+  const response = await api.post(`${backendUrl}/logout`, {}, { withCredentials: true })
     .catch(error => {
       throw error
     });
@@ -58,7 +61,7 @@ export async function userLogout() {
 
 
 export async function getUserId() {
-  const response = await axios.get(`${backendUrl}/verify-user`, {
+  const response = await api.get(`${backendUrl}/verify-user`, {
   })
     .catch(error => {
       throw error
@@ -67,7 +70,7 @@ export async function getUserId() {
 };
 
 export async function getUserInfo(userid) {
-  const response = await axios.get(`${backendUrl}/users/${userid}`)
+  const response = await api.get(`${backendUrl}/users/${userid}`)
     .catch(error => {
       throw error
     })
@@ -76,7 +79,7 @@ export async function getUserInfo(userid) {
 
 
 export async function getUserBlogs(userid) {
-  const response = await axios.get(`${backendUrl}/blogs/${userid}/user`)
+  const response = await api.get(`${backendUrl}/blogs/${userid}/user`)
     .catch(error => {
       throw error;
     });
@@ -84,7 +87,7 @@ export async function getUserBlogs(userid) {
 }
 
 export async function createBlog({ title, tagline, about }) {
-  const response = await axios.post(`${backendUrl}/blogs`, {
+  const response = await api.post(`${backendUrl}/blogs`, {
     title, tagline, about,
   })
     .catch(error => {
@@ -95,7 +98,7 @@ export async function createBlog({ title, tagline, about }) {
 
 
 export async function deleteBlog(blog_id) {
-  const response = await axios.delete(`${backendUrl}/blogs/${blog_id}`, {
+  const response = await api.delete(`${backendUrl}/blogs/${blog_id}`, {
   })
     .catch(error => {
       throw error;
@@ -104,7 +107,7 @@ export async function deleteBlog(blog_id) {
 }
 
 export async function updateBlog(blog_id, { title, tagline, about }) {
-  const response = await axios.put(`${backendUrl}/blogs/${blog_id}`, { title, tagline, about }, {
+  const response = await api.put(`${backendUrl}/blogs/${blog_id}`, { title, tagline, about }, {
   })
     .catch(error => {
       throw error;
@@ -114,7 +117,7 @@ export async function updateBlog(blog_id, { title, tagline, about }) {
 
 
 export async function getBlogPosts(blog_id) {
-  const response = await axios.get(`${backendUrl}/blogs/${blog_id}/posts`)
+  const response = await api.get(`${backendUrl}/blogs/${blog_id}/posts`)
     .catch(error => {
       throw error;
     });
@@ -125,7 +128,7 @@ export async function getBlogPosts(blog_id) {
 
 
 export async function createPost({ blog_id, title, content, published }) {
-  const response = await axios.post(`${backendUrl}/posts/`, { blog_id, title, content, published }, {
+  const response = await api.post(`${backendUrl}/posts/`, { blog_id, title, content, published }, {
 
   })
     .catch(error => {
@@ -136,7 +139,7 @@ export async function createPost({ blog_id, title, content, published }) {
 
 
 export async function updatePost(post_id, { title, content, published }) {
-  const response = await axios.put(`${backendUrl}/posts/${post_id}`, { title, content, published }, {
+  const response = await api.put(`${backendUrl}/posts/${post_id}`, { title, content, published }, {
 
   })
     .catch(error => {
@@ -145,7 +148,7 @@ export async function updatePost(post_id, { title, content, published }) {
 }
 
 export async function getPost(post_id) {
-  const response = await axios.get(`${backendUrl}/posts/${post_id}`)
+  const response = await api.get(`${backendUrl}/posts/${post_id}`)
     .catch(error => {
       throw error;
     });
@@ -154,7 +157,7 @@ export async function getPost(post_id) {
 
 
 export async function deletePost(post_id) {
-  const response = await axios.delete(`${backendUrl}/posts/${post_id}`, {})
+  const response = await api.delete(`${backendUrl}/posts/${post_id}`, {})
     .catch(error => {
       throw error;
     });
@@ -163,7 +166,7 @@ export async function deletePost(post_id) {
 
 
 export async function updateProfile(user_id, profile) {
-  const response = await axios.patch(
+  const response = await api.patch(
     `${backendUrl}/users/${user_id}/profile`,
     { email: profile.email, name: profile.name }
   )
@@ -175,7 +178,7 @@ export async function updateProfile(user_id, profile) {
 
 
 export async function changePassword(user_id, passwords) {
-  const response = await axios.patch(`${backendUrl}/users/${user_id}/password`, { old_password: passwords.current, new_password: passwords.next })
+  const response = await api.patch(`${backendUrl}/users/${user_id}/password`, { old_password: passwords.current, new_password: passwords.next })
     .catch(error => {
       throw error;
     });
@@ -184,7 +187,7 @@ export async function changePassword(user_id, passwords) {
 
 
 export async function deleteUser(user_id) {
-  const response = await axios.delete(`${backendUrl}/users/${user_id}`, {
+  const response = await api.delete(`${backendUrl}/users/${user_id}`, {
   })
     .catch(error => {
       throw error;
@@ -194,7 +197,7 @@ export async function deleteUser(user_id) {
 
 
 export async function getPublicPosts() {
-  const response = await axios.get(`${backendUrl}/posts/public`)
+  const response = await api.get(`${backendUrl}/posts/public`)
     .catch(error => {
       throw error;
     });
@@ -202,7 +205,7 @@ export async function getPublicPosts() {
 }
 
 export async function getAllBlogs() {
-  const response = await axios.get(`${backendUrl}/blogs`)
+  const response = await api.get(`${backendUrl}/blogs`)
     .catch(error => {
       throw error;
     });
@@ -211,7 +214,7 @@ export async function getAllBlogs() {
 
 
 export async function getPublicBlog(blog_id) {
-  const response = await axios.get(`${backendUrl}/blogs/${blog_id}/public`)
+  const response = await api.get(`${backendUrl}/blogs/${blog_id}/public`)
     .catch(error => {
       throw error;
     });
@@ -220,7 +223,7 @@ export async function getPublicBlog(blog_id) {
 
 
 export async function getPostsforBlog(blog_id) {
-  const response = await axios.get(`${backendUrl}/posts/${blog_id}/public`)
+  const response = await api.get(`${backendUrl}/posts/${blog_id}/public`)
     .catch(error => {
       throw error;
     });
@@ -229,7 +232,7 @@ export async function getPostsforBlog(blog_id) {
 
 
 export async function getPublicPost(post_id) {
-  const response = await axios.get(`${backendUrl}/posts/${post_id}/`)
+  const response = await api.get(`${backendUrl}/posts/${post_id}/post/public`)
     .catch(error => {
       throw error;
     });

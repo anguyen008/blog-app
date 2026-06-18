@@ -41,12 +41,15 @@ def get_posts(
 
     blog = (
         db.query(models.Blog)
-        .filter(models.Blog.id == blog_id, models.Blog.user_id == current_user.id)
+        .filter(
+            models.Blog.blog_id == blog_id,
+            models.Blog.author_id == current_user.user_id,
+        )
         .first()
     )
     if not blog:
         raise HTTPException(
-            status_code=403,
+            status_code=401,
             detail=f"Blog with id {blog_id} you don't have access",
         )
 

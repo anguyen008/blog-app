@@ -18,6 +18,7 @@ import {
   getUserInfo,
   refresh,
   userLogout,
+  api,
 } from "../api/api";
 import axios from "axios";
 
@@ -28,10 +29,10 @@ let accessToken = null;
 const setAccessToken = (token) => {
   if (token) {
     accessToken = token;
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   } else {
     accessToken = null;
-    delete axios.defaults.headers.common["Authorization"];
+    delete api.defaults.headers.common["Authorization"];
   }
 };
 
@@ -50,7 +51,10 @@ export const AuthProvider = ({ children }) => {
     } catch {
       accessToken = null;
       setAccessToken(null);
+      setUser(null);
       return null;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -71,6 +75,69 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    let isRefreshing = false;
+    let failedQueue = [];
+
+    const processQueue = (error, token = null) => {
+      failedQueue.forEach((prom) => {
+        if (error) {
+          prom.reject(error);
+        } else {
+          prom.resolve(token);
+        }
+      });
+      failedQueue = [];
+    };
+
+    const interceptorId = api.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config;
+
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          if (isRefreshing) {
+            return new Promise((resolve, reject) => {
+              failedQueue.push({ resolve, reject });
+            })
+              .then((token) => {
+                originalRequest.headers["Authorization"] = `Bearer ${token}`;
+                return api(originalRequest);
+              })
+              .catch((err) => Promise.reject(err));
+          }
+
+          originalRequest._retry = true;
+          isRefreshing = true;
+
+          try {
+            const newToken = await refreshAccessToken();
+            if (newToken) {
+              originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
+              const response = await getUserId();
+              const getUser = await getUserInfo(response.user_id);
+              setUser(getUser);
+              processQueue(null, newToken);
+              return api(originalRequest);
+            }
+          } catch (refreshError) {
+            processQueue(refreshError, null);
+            console.error("Token refresh failed:", refreshError);
+            accessToken = null;
+            logout();
+            return Promise.reject(refreshError);
+          } finally {
+            isRefreshing = false;
+          }
+        }
+        return Promise.reject(error);
+      },
+    );
+    return () => {
+      api.interceptors.response.eject(interceptorId);
+    };
+  }, []);
 
   useEffect(() => {
     restoreUser();
@@ -100,7 +167,6 @@ export const AuthProvider = ({ children }) => {
       value={{
         user,
         restoreUser,
-        accessToken,
         loading,
         register,
         login,
