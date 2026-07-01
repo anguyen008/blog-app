@@ -111,4 +111,4 @@ A few things are currently set up for local development only and will need atten
 
 ## License
 
-This project is licensed under the MIT License — see LICENSE(LICENSE.txt) for details.
+This project is licensed under the MIT License — see [LICENSE](LICENSE) for details.
