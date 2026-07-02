@@ -145,6 +145,7 @@ export async function updatePost(post_id, { title, content, published }) {
     .catch(error => {
       throw error;
     });
+  return response.data
 }
 
 export async function getPost(post_id) {

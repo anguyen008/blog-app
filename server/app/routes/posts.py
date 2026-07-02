@@ -1,5 +1,3 @@
-from ast import stmt
-
 from fastapi import Depends, HTTPException, status, Response, APIRouter
 from .. import models, schemas, oauth2
 from sqlalchemy.orm import Session

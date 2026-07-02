@@ -14,13 +14,6 @@ from typing import List
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
-@router.get("/", response_model=List[schemas.UserResponse])
-def get_users(db: Session = Depends(get_db)):
-    """Retrieve all users. Demonstrates: ORM query, response model serialization"""
-    users = db.query(models.User).all()
-    return users
-
-
 @router.get("/{user_id}", response_model=schemas.UserResponse)
 def read_user(
     user_id: uuid.UUID,
