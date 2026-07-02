@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # Initialize FastAPI app (auto-generates OpenAPI docs at /docs)
 app = FastAPI()
 
-# Create database tables from model definitions
+# Create database tables from model definitions (Optional: Alembic handles migrations, but this ensures tables exist for dev/testing)
 models.Base.metadata.create_all(bind=engine)
 
 # Include routers to modularize endpoints by domain
