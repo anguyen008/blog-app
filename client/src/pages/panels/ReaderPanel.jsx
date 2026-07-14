@@ -122,7 +122,7 @@ export default function ReaderPanel({ blogId, postId }) {
           </button>
         ) : (
           <button className="btn ghost" onClick={() => navigate("/home")}>
-            {Icons.back} Home
+            {Icons.back} Back to Home
           </button>
         )}
 

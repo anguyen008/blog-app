@@ -14,6 +14,8 @@ const backendUrl = 'http://localhost:8000';
 export const api = axios.create({ baseURL: backendUrl, withCredentials: true })
 
 
+// User Authentication API Functions
+
 export async function loginUser({ email, password }) {
   const formData = new URLSearchParams({ username: email, password })
   try {
@@ -58,7 +60,7 @@ export async function userLogout() {
   return response.data
 }
 
-
+// User Data API Functions
 
 export async function getUserId() {
   const response = await api.get(`${backendUrl}/verify-user`, {
@@ -77,6 +79,40 @@ export async function getUserInfo(userid) {
   return response.data
 }
 
+
+export async function updateProfile(user_id, profile) {
+  const response = await api.patch(
+    `${backendUrl}/users/${user_id}/profile`,
+    { email: profile.email, name: profile.name }
+  )
+    .catch(error => {
+      throw error;
+    });
+  return response.data
+}
+
+
+export async function changePassword(user_id, passwords) {
+  const response = await api.patch(`${backendUrl}/users/${user_id}/password`, { old_password: passwords.current, new_password: passwords.next })
+    .catch(error => {
+      throw error;
+    });
+  return response.status
+}
+
+
+export async function deleteUser(user_id) {
+  const response = await api.delete(`${backendUrl}/users/${user_id}`, {
+  })
+    .catch(error => {
+      throw error;
+    });
+  return response.status
+}
+
+
+
+// Blog API Functions
 
 export async function getUserBlogs(userid) {
   const response = await api.get(`${backendUrl}/blogs/${userid}/user`)
@@ -116,6 +152,26 @@ export async function updateBlog(blog_id, { title, tagline, about }) {
 }
 
 
+
+export async function getAllBlogs() {
+  const response = await api.get(`${backendUrl}/blogs`)
+    .catch(error => {
+      throw error;
+    });
+  return response.data
+}
+
+
+export async function getPublicBlog(blog_id) {
+  const response = await api.get(`${backendUrl}/blogs/${blog_id}/public`)
+    .catch(error => {
+      throw error;
+    });
+  return response.data
+}
+
+
+
 export async function getBlogPosts(blog_id) {
   const response = await api.get(`${backendUrl}/blogs/${blog_id}/posts`)
     .catch(error => {
@@ -125,7 +181,7 @@ export async function getBlogPosts(blog_id) {
 
 }
 
-
+// Post API Functions
 
 export async function createPost({ blog_id, title, content, published }) {
   const response = await api.post(`${backendUrl}/posts/`, { blog_id, title, content, published }, {
@@ -165,75 +221,20 @@ export async function deletePost(post_id) {
   return response
 }
 
-
-export async function updateProfile(user_id, profile) {
-  const response = await api.patch(
-    `${backendUrl}/users/${user_id}/profile`,
-    { email: profile.email, name: profile.name }
-  )
-    .catch(error => {
-      throw error;
-    });
-  return response.data
-}
-
-
-export async function changePassword(user_id, passwords) {
-  const response = await api.patch(`${backendUrl}/users/${user_id}/password`, { old_password: passwords.current, new_password: passwords.next })
-    .catch(error => {
-      throw error;
-    });
-  return response.status
-}
-
-
-export async function deleteUser(user_id) {
-  const response = await api.delete(`${backendUrl}/users/${user_id}`, {
+export async function getPublicPosts(blog_id = null) {
+  const response = await api.get(`${backendUrl}/posts/public`, {
+    params: { blog_id }
   })
     .catch(error => {
       throw error;
     });
-  return response.status
-}
-
-
-export async function getPublicPosts() {
-  const response = await api.get(`${backendUrl}/posts/public`)
-    .catch(error => {
-      throw error;
-    });
   return response.data
 }
 
-export async function getAllBlogs() {
-  const response = await api.get(`${backendUrl}/blogs`)
-    .catch(error => {
-      throw error;
-    });
-  return response.data
-}
-
-
-export async function getPublicBlog(blog_id) {
-  const response = await api.get(`${backendUrl}/blogs/${blog_id}/public`)
-    .catch(error => {
-      throw error;
-    });
-  return response.data
-}
-
-
-export async function getPostsforBlog(blog_id) {
-  const response = await api.get(`${backendUrl}/posts/${blog_id}/public`)
-    .catch(error => {
-      throw error;
-    });
-  return response.data
-}
 
 
 export async function getPublicPost(post_id) {
-  const response = await api.get(`${backendUrl}/posts/${post_id}/post/public`)
+  const response = await api.get(`${backendUrl}/posts/${post_id}/public`)
     .catch(error => {
       throw error;
     });

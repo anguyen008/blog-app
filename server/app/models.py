@@ -104,6 +104,7 @@ class Post(Base):
     author = relationship("User", backref="posts")
 
 
+# Add computed properties to Blog for post counts
 Blog.number_of_posts = column_property(
     select(func.count(Post.post_id))
     .where(Post.blog_id == Blog.blog_id)
@@ -111,6 +112,7 @@ Blog.number_of_posts = column_property(
     .scalar_subquery()
 )
 
+# Add computed property to Blog for published post counts
 Blog.number_of_published_posts = column_property(
     select(func.count(Post.post_id))
     .where(Post.blog_id == Blog.blog_id, Post.published == True)

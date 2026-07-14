@@ -4,48 +4,32 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select, text, or_
 from ..database import get_db
 import uuid
-from typing import List
+from typing import List, Optional
 
 router = APIRouter(prefix="/posts", tags=["Posts"])
 
 
 @router.get("/public", response_model=List[schemas.PostResponse])
 def get_visible_posts(
+    blog_id: Optional[uuid.UUID] = None,
     db: Session = Depends(get_db),
 ):
     # This single query enforces your exact rules:
     # 1. PostModel.is_published == True -> Anyone can see these
     # 2. PostModel.owner_id == current_user.id -> Only the creator can see these if unpublished
-    posts = (
-        db.query(models.Post)
-        .filter(
-            or_(
-                models.Post.published == True,
-            )
-        )
-        .all()
-    )
+    posts = db.query(models.Post).filter(models.Post.published == True)
+    if blog_id:
+        posts = posts.filter(models.Post.blog_id == blog_id)
 
-    return posts
+    return posts.all()
 
 
-@router.get("/{blog_id}/public", response_model=List[schemas.PostResponse])
-def get_public_posts(blog_id: uuid.UUID, db: Session = Depends(get_db)):
-    """Retrieve all published posts of a blog. Demonstrates: ORM query, response model serialization"""
-    posts = (
-        db.query(models.Post)
-        .filter(models.Post.blog_id == blog_id, models.Post.published == True)
-        .all()
-    )
-    return posts
-
-
-@router.get("/{post_id}/post/public", response_model=schemas.PostResponse)
+@router.get("/{post_id}/public", response_model=schemas.PostResponse)
 def get_public_post(
     post_id: uuid.UUID,
     db: Session = Depends(get_db),
 ):
-    """Retrieve specific post by ID. Demonstrates ORM query"""
+    """Retrieve specific public post by ID. Demonstrates ORM query"""
 
     post = (
         db.query(models.Post)
@@ -66,7 +50,7 @@ def read_post(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(oauth2.get_current_user),
 ):
-    """Retrieve specific post by ID. Demonstrates ORM query"""
+    """Retrieve specific public/private post by ID. Demonstrates ORM query"""
 
     post = db.query(models.Post).filter(models.Post.post_id == post_id).first()
     if post is None:
@@ -76,7 +60,7 @@ def read_post(
 
     if str(post.author_id) != str(current_user.user_id):
         raise HTTPException(
-            status_code=403, detail=f"Not authorized to create post for this blog"
+            status_code=403, detail=f"Not authorized to view post for this blog"
         )
     return post
 

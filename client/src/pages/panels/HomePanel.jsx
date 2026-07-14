@@ -400,8 +400,8 @@ export default function HomePanel({ onReadPost }) {
                             fontWeight: 550,
                           }}
                         >
-                          {blog.number_of_posts ?? 0} post
-                          {blog.number_of_posts !== 1 ? "s" : ""}
+                          {blog.number_of_published_posts ?? 0} post
+                          {blog.number_of_published_posts !== 1 ? "s" : ""}
                         </span>
                         <span>·</span>
                         <span> Last {formatDate(blog.updated_at)}</span>

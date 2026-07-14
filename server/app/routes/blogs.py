@@ -22,7 +22,7 @@ def read_blog(
     blog_id: uuid.UUID,
     db: Session = Depends(get_db),
 ):
-    """Retrieve specific blog by ID. Demonstrates ORM query"""
+    """Retrieve specific blog by ID publicly. Demonstrates ORM query"""
 
     blog = db.query(models.Blog).filter(models.Blog.blog_id == blog_id).first()
     if blog is None:
@@ -32,13 +32,28 @@ def read_blog(
     return blog
 
 
+@router.get("/{user_id}/user", response_model=List[schemas.BlogResponse])
+def get_user_blogs(
+    user_id: uuid.UUID,
+    db: Session = Depends(get_db),
+):
+    """Retrieve all blogs by user id"""
+
+    blogs = db.query(models.Blog).filter(models.Blog.author_id == user_id).all()
+    if blogs is None:
+        raise HTTPException(
+            status_code=404, detail=f"Blogs with uuid {user_id} not found"
+        )
+    return blogs
+
+
 @router.get("/{blog_id}/posts", response_model=List[schemas.PostResponse])
 def get_posts(
     blog_id: uuid.UUID,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(oauth2.get_current_user),
 ):
-
+    """Retrieve all posts of a blog both published and unpublished. Demonstrates: ORM query, response model serialization"""
     blog = (
         db.query(models.Blog)
         .filter(
@@ -53,31 +68,16 @@ def get_posts(
             detail=f"Blog with id {blog_id} you don't have access",
         )
 
-    """Retrieve all posts of a blog. Demonstrates: ORM query, response model serialization"""
     posts = (
         db.query(models.Post)
         .filter(models.Post.blog_id == blog_id)
         .options(
-            joinedload(models.Post.author),  # adjust to your actual relationship names
+            joinedload(models.Post.author),
             joinedload(models.Post.blog),
         )
         .all()
     )
     return posts
-
-
-@router.get("/{user_id}/user", response_model=List[schemas.BlogResponse])
-def get_user_blogs(
-    user_id: uuid.UUID,
-    db: Session = Depends(get_db),
-):
-    """Retrieve all blogs by user id"""
-    blogs = db.query(models.Blog).filter(models.Blog.author_id == user_id).all()
-    if blogs is None:
-        raise HTTPException(
-            status_code=404, detail=f"Blogs with uuid {user_id} not found"
-        )
-    return blogs
 
 
 @router.post(

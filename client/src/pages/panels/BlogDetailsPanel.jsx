@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Spinner } from "../../components/UI";
+import { Spinner, Icons } from "../../components/UI";
 import * as api from "../../api/api";
 
 function formatDate(iso) {
@@ -76,7 +76,7 @@ export default function BlogDetailPanel({ blogId }) {
       .catch((err) => console.error("BlogDetailPanel load error:", err))
       .finally(() => setLoading(false));
     api
-      .getPostsforBlog(blogId)
+      .getPublicPosts(blogId)
       .then(setPosts)
       .catch((err) => console.error("BlogDetailPanel load error:", err))
       .finally(() => setLoading(false));
@@ -120,7 +120,7 @@ export default function BlogDetailPanel({ blogId }) {
         }}
       >
         <button className="btn ghost" onClick={() => navigate("/home")}>
-          ← Back to Home
+          {Icons.back} Back to Home
         </button>
 
         {fromPostId && (

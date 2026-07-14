@@ -2,12 +2,16 @@
  * AuthContext.jsx - Authentication Context
  *
  * Provides authentication state and methods globally to all components:
- * - user: Current logged-in user object
- * - setUser: Update user state
- * - login: Handle user login
- * - logout: Handle user logout
- * - navigate: Navigate to different pages
- * - pageParams: Route parameters
+ * - user: current authenticated user object
+ * - loading: auth restoration loading state
+ * - register: register a new user and sign in
+ * - login: authenticate and load current user
+ * - logout: sign out and clear auth state
+ * - restoreUser: refresh token and restore session on app load
+ *
+ * Also sets up an Axios response interceptor to refresh access tokens
+ * automatically when 401 responses occur, queueing requests while a
+ * refresh is in progress.
  */
 
 import { createContext, useState, useEffect, useContext } from "react";
@@ -162,6 +166,7 @@ export const AuthProvider = ({ children }) => {
     setAccessToken(null);
     setUser(null);
   };
+
   return (
     <AuthContext.Provider
       value={{

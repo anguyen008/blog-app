@@ -123,6 +123,7 @@ def update_user_profile(
         .execution_options(synchronize_session=False)
     )
     db.execute(update_query)
+    db.refresh(user)
     db.commit()
 
     return user

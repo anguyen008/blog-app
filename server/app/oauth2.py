@@ -46,7 +46,7 @@ def create_refresh_token(data: dict, expires_delta: int = REFRESH_TOKEN_EXPIRE_D
     return encoded_jwt
 
 
-def verify_access_token(token: str, credentials_exception):
+def verify_token(token: str, credentials_exception):
     """
     Verify JWT token validity.
     jwt.decode automatically checks:
@@ -80,4 +80,4 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    return verify_access_token(token, credentials_exception)
+    return verify_token(token, credentials_exception)
