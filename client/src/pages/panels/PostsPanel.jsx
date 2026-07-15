@@ -44,6 +44,7 @@ export default function PostsPanel({ blog, onEdit, onNewPost }) {
   }
 
   return (
+    <div id="posts-panel" className="fade-up">
     <>
       {confirm && (
         <ConfirmModal
@@ -64,7 +65,7 @@ export default function PostsPanel({ blog, onEdit, onNewPost }) {
           </div>
           {blog.about && <div className="posts-header-about">{blog.about}</div>}
           <button className="btn primary" onClick={onNewPost}>
-            {Icons.pen} Write
+            {Icons.pen} New Post
           </button>
         </div>
 
@@ -131,5 +132,6 @@ export default function PostsPanel({ blog, onEdit, onNewPost }) {
         )}
       </div>
     </>
+    </div>
   );
 }

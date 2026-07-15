@@ -107,7 +107,8 @@ export default function BlogDetailPanel({ blogId }) {
     });
 
   return (
-    <div className="blogs-page fade-up">
+    <div id="blog-details-panel" className="fade-up">
+      <div className="blogs-page fade-up">
       {/* ── header actions ── */}
       <div
         style={{
@@ -185,7 +186,7 @@ export default function BlogDetailPanel({ blogId }) {
         )}
       </div>
       <div style={{ fontSize: 12, color: "var(--ink4)", marginBottom: 10 }}>
-        {selected.number_of_published_posts ?? 0} published post{" "}
+        {selected.number_of_published_posts ?? 0} published post
         {selected.number_of_published_posts !== 1 ? "s" : ""}
       </div>
       {!selected.number_of_posts ? (
@@ -227,6 +228,7 @@ export default function BlogDetailPanel({ blogId }) {
           ))}
         </div>
       )}
+    </div>
     </div>
   );
 }

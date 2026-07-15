@@ -101,7 +101,8 @@ export default function ReaderPanel({ blogId, postId }) {
   }
 
   return (
-    <div className="settings-page fade-up" style={{ maxWidth: "none" }}>
+    <div id="reader-panel" className="fade-up">
+      <div className="settings-page fade-up" style={{ maxWidth: "none" }}>
       {/* ── header actions ── */}
       <div
         style={{
@@ -192,6 +193,7 @@ export default function ReaderPanel({ blogId, postId }) {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 }
