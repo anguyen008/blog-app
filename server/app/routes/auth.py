@@ -64,7 +64,7 @@ def login(
 def refresh(
     refresh_token: str = Cookie(None),
 ):
-    """Refresh endpoint - demonstrates: Refresh token verfication, JWT token generation"""
+    """Refresh access token if refresh token is valid endpoint - demonstrates: Refresh token verification, JWT token generation"""
 
     if not refresh_token:
         raise HTTPException(status_code=401, detail="No refresh token found")
@@ -87,5 +87,5 @@ def logout(response: Response):
 
 
 @router.get("/verify-user")
-def verfiy_user(current_user: schemas.TokenData = Depends(oauth2.get_current_user)):
+def verify_user(current_user: schemas.TokenData = Depends(oauth2.get_current_user)):
     return current_user

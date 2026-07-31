@@ -129,7 +129,7 @@ export const AuthProvider = ({ children }) => {
             processQueue(refreshError, null);
             console.error("Token refresh failed:", refreshError);
             accessToken = null;
-            logout();
+            await logout();
             return Promise.reject(refreshError);
           } finally {
             isRefreshing = false;
