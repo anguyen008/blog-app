@@ -1,6 +1,6 @@
 from fastapi import Depends, HTTPException, status, Response, APIRouter
 from .. import models, schemas, oauth2
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import select, text, or_
 from ..database import get_db
 import uuid
@@ -17,7 +17,11 @@ def get_visible_posts(
     # This single query enforces your exact rules:
     # 1. PostModel.is_published == True -> Anyone can see these
     # 2. PostModel.owner_id == current_user.id -> Only the creator can see these if unpublished
-    posts = db.query(models.Post).filter(models.Post.published == True)
+    posts = (
+        db.query(models.Post)
+        .options(joinedload(models.Post.blog), joinedload(models.Post.author))
+        .filter(models.Post.published == True)
+    )
     if blog_id:
         posts = posts.filter(models.Post.blog_id == blog_id)
 
@@ -33,6 +37,7 @@ def get_public_post(
 
     post = (
         db.query(models.Post)
+        .options(joinedload(models.Post.blog), joinedload(models.Post.author))
         .filter(models.Post.post_id == post_id, models.Post.published == True)
         .first()
     )
@@ -52,7 +57,12 @@ def read_post(
 ):
     """Retrieve specific public/private post by ID. Demonstrates ORM query"""
 
-    post = db.query(models.Post).filter(models.Post.post_id == post_id).first()
+    post = (
+        db.query(models.Post)
+        .options(joinedload(models.Post.blog), joinedload(models.Post.author))
+        .filter(models.Post.post_id == post_id)
+        .first()
+    )
     if post is None:
         raise HTTPException(
             status_code=404, detail=f"Post with uuid {post_id} not found"

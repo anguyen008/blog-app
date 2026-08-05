@@ -13,7 +13,7 @@ router = APIRouter(prefix="/blogs", tags=["Blogs"])
 @router.get("/", response_model=List[schemas.BlogResponse])
 def get_blogs(db: Session = Depends(get_db)):
     """Retrieve all blogs. Demonstrates: ORM query, response model serialization"""
-    blogs = db.query(models.Blog).all()
+    blogs = db.query(models.Blog).options(joinedload(models.Blog.author)).all()
     return blogs
 
 
@@ -24,7 +24,12 @@ def read_blog(
 ):
     """Retrieve specific blog by ID publicly. Demonstrates ORM query"""
 
-    blog = db.query(models.Blog).filter(models.Blog.blog_id == blog_id).first()
+    blog = (
+        db.query(models.Blog)
+        .options(joinedload(models.Blog.author))
+        .filter(models.Blog.blog_id == blog_id)
+        .first()
+    )
     if blog is None:
         raise HTTPException(
             status_code=404, detail=f"Blog with uuid {blog_id} not found"

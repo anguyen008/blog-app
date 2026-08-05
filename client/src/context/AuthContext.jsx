@@ -145,6 +145,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     restoreUser();
+    setLoading(false);
   }, []);
 
   const register = async ({ name, email, password }) => {
