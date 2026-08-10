@@ -1,6 +1,6 @@
 from fastapi import Depends, HTTPException, status, Response, APIRouter
 from .. import models, schemas, oauth2
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, joinedload, selectinload
 from sqlalchemy import update, delete
 from ..database import get_db
 import uuid
@@ -44,7 +44,12 @@ def get_user_blogs(
 ):
     """Retrieve all blogs by user id"""
 
-    blogs = db.query(models.Blog).filter(models.Blog.author_id == user_id).all()
+    blogs = (
+        db.query(models.Blog)
+        .options(joinedload(models.Blog.author))
+        .filter(models.Blog.author_id == user_id)
+        .all()
+    )
     if blogs is None:
         raise HTTPException(
             status_code=404, detail=f"Blogs with uuid {user_id} not found"

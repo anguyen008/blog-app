@@ -88,7 +88,10 @@ class Post(Base):
         UUID, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False
     )  # Foreign key to Blogs
     blog_id = Column(
-        UUID, ForeignKey("blogs.blog_id", ondelete="CASCADE"), nullable=False
+        UUID,
+        ForeignKey("blogs.blog_id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )  # Foreign key to Blogs
     created_at = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
