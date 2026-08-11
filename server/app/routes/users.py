@@ -8,7 +8,6 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 from ..database import get_db
 import uuid
-from typing import List
 
 # Router groups user endpoints with /users prefix
 router = APIRouter(prefix="/users", tags=["Users"])

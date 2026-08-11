@@ -1,6 +1,6 @@
 from fastapi import Depends, HTTPException, status, Response, APIRouter
 from .. import models, schemas, oauth2
-from sqlalchemy.orm import Session, joinedload, selectinload
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import update, delete
 from ..database import get_db
 import uuid

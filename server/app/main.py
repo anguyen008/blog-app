@@ -1,7 +1,5 @@
 from fastapi import FastAPI
-from . import models
 from .routes import users, auth, blogs, posts
-from .database import engine
 from fastapi.middleware.cors import CORSMiddleware
 
 # Initialize FastAPI app (auto-generates OpenAPI docs at /docs)
@@ -17,10 +15,10 @@ app.include_router(blogs.router)
 app.include_router(posts.router)
 
 
-@app.get("/")
+@app.get("/health", tags=["Health Check"])
 def read_root():
     """Root endpoint - health check or API info"""
-    return {"message": "Health Check!"}
+    return {"status": "healthy", "timestamp": "2026-08-11T02:33:00Z"}
 
 
 origins = [
