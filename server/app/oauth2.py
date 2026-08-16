@@ -28,8 +28,11 @@ def create_access_token(data: dict, expires_delta: int = ACCESS_TOKEN_EXPIRE_MIN
     """
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + timedelta(minutes=expires_delta)
-    to_encode.update({"exp": int(expire.timestamp())})  # exp must be a UNIX timestamp
+    to_encode.update(
+        {"type": "access", "exp": int(expire.timestamp())}
+    )  # exp must be a UNIX timestamp
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    print(f"Access Token: {encoded_jwt}")
     return encoded_jwt
 
 
@@ -41,12 +44,15 @@ def create_refresh_token(data: dict, expires_delta: int = REFRESH_TOKEN_EXPIRE_D
     """
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + timedelta(days=expires_delta)
-    to_encode.update({"exp": int(expire.timestamp())})  # exp must be a UNIX timestamp
+    to_encode.update(
+        {"type": "refresh", "exp": int(expire.timestamp())}
+    )  # exp must be a UNIX timestamp
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    print(f"Refresh Token: {encoded_jwt}")
     return encoded_jwt
 
 
-def verify_token(token: str, credentials_exception):
+def verify_token(token: str, credentials_exception, expected_type: str = "access"):
     """
     Verify JWT token validity.
     jwt.decode automatically checks:
@@ -56,6 +62,10 @@ def verify_token(token: str, credentials_exception):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: Optional[str] = payload.get("user_id")
+        token_type: Optional[str] = payload.get("type")
+
+        if token_type != expected_type:
+            raise credentials_exception
 
         if user_id is None:
             raise credentials_exception
@@ -69,7 +79,9 @@ def verify_token(token: str, credentials_exception):
     return token_data
 
 
-def get_current_user(token: str = Depends(oauth2_scheme)):
+def get_current_user(
+    token: str = Depends(oauth2_scheme), expected_type: str = "access"
+):
     """
     Dependency to get authenticated user from Authorization header token.
     Use in protected routes: Depends(get_current_user)
@@ -80,4 +92,4 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    return verify_token(token, credentials_exception)
+    return verify_token(token, credentials_exception, expected_type)

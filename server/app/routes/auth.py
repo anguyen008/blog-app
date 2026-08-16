@@ -69,7 +69,7 @@ def refresh(
     if not refresh_token:
         raise HTTPException(status_code=401, detail="No refresh token found")
 
-    token_data = oauth2.get_current_user(refresh_token)
+    token_data = oauth2.get_current_user(refresh_token, expected_type="refresh")
 
     new_access_token = oauth2.create_access_token(
         data={"user_id": str(token_data.user_id)}

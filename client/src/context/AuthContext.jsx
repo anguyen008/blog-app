@@ -28,14 +28,10 @@ import axios from "axios";
 
 const AuthContext = createContext();
 
-let accessToken = null;
-
 const setAccessToken = (token) => {
   if (token) {
-    accessToken = token;
     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   } else {
-    accessToken = null;
     delete api.defaults.headers.common["Authorization"];
   }
 };
@@ -53,7 +49,6 @@ export const AuthProvider = ({ children }) => {
       setAccessToken(response.access_token);
       return response.access_token;
     } catch {
-      accessToken = null;
       setAccessToken(null);
       setUser(null);
       return null;
@@ -128,7 +123,8 @@ export const AuthProvider = ({ children }) => {
           } catch (refreshError) {
             processQueue(refreshError, null);
             console.error("Token refresh failed:", refreshError);
-            accessToken = null;
+            setAccessToken(null);
+            setUser(null);
             await logout();
             return Promise.reject(refreshError);
           } finally {
@@ -155,8 +151,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const response = await loginUser({ email, password });
-    accessToken = response.access_token;
-    setAccessToken(accessToken);
+    setAccessToken(response.access_token);
     const userId = await getUserId();
     const getUser = await getUserInfo(userId.user_id);
     setUser(getUser);
