@@ -1,7 +1,7 @@
 # Database connection and session management using SQLAlchemy ORM
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import DeclarativeBase, sessionmaker
+from sqlalchemy.orm import sessionmaker, declarative_base
 from .config import settings
 
 # Database URL format: dialect+driver://user:password@host:port/database
@@ -16,8 +16,7 @@ SessionLocal = sessionmaker(autoflush=False, bind=engine, autocommit=False)
 
 
 # Base class for all ORM models
-class Base(DeclarativeBase):
-    pass
+Base = declarative_base()
 
 
 def get_db():

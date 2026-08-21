@@ -24,11 +24,11 @@ def login(
         {"email": users_credientials.username},
     ).fetchone()
     if not user:
-        raise HTTPException(status_code=403, detail=f"Invalid email or password")
+        raise HTTPException(status_code=401, detail=f"Invalid email or password")
 
     # Verify provided password matches hash in database
     if not utils.verify_password(users_credientials.password, user.password_hash):
-        raise HTTPException(status_code=403, detail=f"Invalid email or password")
+        raise HTTPException(status_code=401, detail=f"Invalid email or password")
 
     # Create JWT token containing user_id
     access_token = oauth2.create_access_token(data={"user_id": str(user.user_id)})

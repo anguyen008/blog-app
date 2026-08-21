@@ -57,39 +57,6 @@ def get_user_blogs(
     return blogs
 
 
-@router.get("/{blog_id}/posts", response_model=List[schemas.PostResponse])
-def get_posts(
-    blog_id: uuid.UUID,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(oauth2.get_current_user),
-):
-    """Retrieve all posts of a blog both published and unpublished. Demonstrates: ORM query, response model serialization"""
-    blog = (
-        db.query(models.Blog)
-        .filter(
-            models.Blog.blog_id == blog_id,
-            models.Blog.author_id == current_user.user_id,
-        )
-        .first()
-    )
-    if not blog:
-        raise HTTPException(
-            status_code=401,
-            detail=f"Blog with id {blog_id} you don't have access",
-        )
-
-    posts = (
-        db.query(models.Post)
-        .filter(models.Post.blog_id == blog_id)
-        .options(
-            joinedload(models.Post.author),
-            joinedload(models.Post.blog),
-        )
-        .all()
-    )
-    return posts
-
-
 @router.post(
     "/", response_model=schemas.BlogResponse, status_code=status.HTTP_201_CREATED
 )

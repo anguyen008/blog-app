@@ -32,7 +32,6 @@ def create_access_token(data: dict, expires_delta: int = ACCESS_TOKEN_EXPIRE_MIN
         {"type": "access", "exp": int(expire.timestamp())}
     )  # exp must be a UNIX timestamp
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    print(f"Access Token: {encoded_jwt}")
     return encoded_jwt
 
 
@@ -48,7 +47,6 @@ def create_refresh_token(data: dict, expires_delta: int = REFRESH_TOKEN_EXPIRE_D
         {"type": "refresh", "exp": int(expire.timestamp())}
     )  # exp must be a UNIX timestamp
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    print(f"Refresh Token: {encoded_jwt}")
     return encoded_jwt
 
 

@@ -15,10 +15,10 @@ app.include_router(blogs.router)
 app.include_router(posts.router)
 
 
-@app.get("/health", tags=["Health Check"])
+@app.get("/", tags=["Health Check"])
 def read_root():
     """Root endpoint - health check or API info"""
-    return {"status": "healthy", "timestamp": "2026-08-11T02:33:00Z"}
+    return {"status": "healthy"}
 
 
 origins = [

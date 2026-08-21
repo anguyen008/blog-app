@@ -17,6 +17,7 @@ router = APIRouter(prefix="/users", tags=["Users"])
 def read_user(
     user_id: uuid.UUID,
     db: Session = Depends(get_db),
+    current_user: schemas.TokenData = Depends(oauth2.get_current_user),
 ):
     """Retrieve specific user by ID. Demonstrates ORM query"""
 
@@ -26,6 +27,12 @@ def read_user(
         raise HTTPException(
             status_code=404, detail=f"User with uuid {user_id} not found"
         )
+
+    if str(user.user_id) != str(current_user.user_id):
+        raise HTTPException(
+            status_code=403, detail=f"Not authorized to check this user"
+        )
+
     return user
 
 
@@ -151,7 +158,7 @@ def update_password(
     )
 
     if not verify_password:
-        raise HTTPException(status_code=401, detail="Incorrect old password")
+        raise HTTPException(status_code=400, detail="Incorrect old password")
 
     new_hash_password = utils.hash_password(update_password.new_password)
 

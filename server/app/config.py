@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     database_user: str = Field(default="", alias="POSTGRES_USER")
     database_password: str = Field(default="", alias="POSTGRES_PASSWORD")
     database_host: str = Field(default="", alias="POSTGRES_HOST")
-    database_port: str = Field(default="", alias="POSTGRES_PORT")
+    database_port: str = Field(default="5432", alias="POSTGRES_PORT")
     database_name: str = Field(default="", alias="POSTGRES_DB")
 
     # JWT secret key for signing tokens

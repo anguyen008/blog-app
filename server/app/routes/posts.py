@@ -67,11 +67,44 @@ def read_post(
             status_code=404, detail=f"Post with uuid {post_id} not found"
         )
 
-    if str(post.author_id) != str(current_user.user_id):
+    if str(post.blog.author_id) != str(current_user.user_id):
         raise HTTPException(
             status_code=403, detail=f"Not authorized to view post for this blog"
         )
     return post
+
+
+@router.get("/{blog_id}/blog", response_model=List[schemas.PostResponse])
+def get_blog_posts(
+    blog_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(oauth2.get_current_user),
+):
+    """Retrieve all posts of a blog both published and unpublished. Demonstrates: ORM query, response model serialization"""
+    blog = (
+        db.query(models.Blog)
+        .filter(
+            models.Blog.blog_id == blog_id,
+            models.Blog.author_id == current_user.user_id,
+        )
+        .first()
+    )
+    if not blog:
+        raise HTTPException(
+            status_code=401,
+            detail=f"Blog with id {blog_id} you don't have access",
+        )
+
+    posts = (
+        db.query(models.Post)
+        .filter(models.Post.blog_id == blog_id)
+        .options(
+            joinedload(models.Post.author),
+            joinedload(models.Post.blog),
+        )
+        .all()
+    )
+    return posts
 
 
 @router.post(

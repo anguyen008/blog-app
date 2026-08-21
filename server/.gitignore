@@ -6,7 +6,7 @@ dist/
 wheels/
 *.egg-info
 tutorial.py
-
+.pytest_cache
 # Virtual environments
 .venv
 .env
