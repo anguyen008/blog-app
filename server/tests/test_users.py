@@ -1,5 +1,6 @@
 import uuid
 
+from app import models
 from app import schemas
 from app.oauth2 import create_access_token
 
@@ -158,3 +159,23 @@ def test_delete_user(authorized_client, test_user):
         f"/users/{test_user['user_id']}",
     )
     assert read_response.status_code == 404
+
+
+def test_delete_user_deletes_related_blogs_and_posts(
+    authorized_client, test_user, test_blogs, test_posts, session
+):
+    response = authorized_client.delete(f"/users/{test_user['user_id']}")
+
+    assert response.status_code == 204
+    assert (
+        session.query(models.Blog)
+        .filter(models.Blog.author_id == test_user["user_id"])
+        .count()
+        == 0
+    )
+    assert (
+        session.query(models.Post)
+        .filter(models.Post.author_id == test_user["user_id"])
+        .count()
+        == 0
+    )

@@ -1,8 +1,5 @@
 import uuid
-import pytest
-
-from app import schemas
-from app.oauth2 import create_access_token
+from app import models
 
 
 def test_create_blog(authorized_client):
@@ -139,3 +136,16 @@ def test_delete_blog_rejects_non_owner(client, test_blogs):
     blog_id = str(test_blogs[0].blog_id)
     response = client.delete(f"/blogs/{blog_id}")
     assert response.status_code == 401
+
+
+def test_delete_blog_deletes_related_posts(
+    authorized_client, session, test_blogs, test_posts
+):
+    blog_id = test_blogs[0].blog_id
+
+    response = authorized_client.delete(f"/blogs/{blog_id}")
+
+    assert response.status_code == 204
+    assert (
+        session.query(models.Post).filter(models.Post.blog_id == blog_id).count() == 0
+    )

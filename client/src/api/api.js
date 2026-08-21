@@ -173,7 +173,7 @@ export async function getPublicBlog(blog_id) {
 
 
 export async function getBlogPosts(blog_id) {
-  const response = await api.get(`${backendUrl}/blogs/${blog_id}/posts`)
+  const response = await api.get(`${backendUrl}/posts/${blog_id}/blog`)
     .catch(error => {
       throw error;
     });

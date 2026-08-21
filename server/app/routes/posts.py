@@ -49,7 +49,7 @@ def get_public_post(
 
 
 @router.get("/{post_id}", response_model=schemas.PostResponse)
-def read_post(
+def get_my_post(
     post_id: uuid.UUID,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(oauth2.get_current_user),
@@ -75,7 +75,7 @@ def read_post(
 
 
 @router.get("/{blog_id}/blog", response_model=List[schemas.PostResponse])
-def get_blog_posts(
+def get_my_blog_posts(
     blog_id: uuid.UUID,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(oauth2.get_current_user),

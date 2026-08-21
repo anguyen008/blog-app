@@ -119,3 +119,33 @@ def test_blogs(session, test_user):
     session.add_all(blogs)
     session.commit()
     return blogs
+
+
+@pytest.fixture()
+def test_posts(session, test_user, test_blogs):
+    posts_data = [
+        {
+            "title": "Published post",
+            "content": "Published content",
+            "published": True,
+            "blog_id": test_blogs[0].blog_id,
+        },
+        {
+            "title": "Draft post",
+            "content": "Draft content",
+            "published": False,
+            "blog_id": test_blogs[0].blog_id,
+        },
+        {
+            "title": "Second blog post",
+            "content": "Second blog content",
+            "published": True,
+            "blog_id": test_blogs[1].blog_id,
+        },
+    ]
+
+    posts = [models.Post(**post, author_id=test_user["user_id"]) for post in posts_data]
+
+    session.add_all(posts)
+    session.commit()
+    return posts
