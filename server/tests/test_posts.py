@@ -1,5 +1,7 @@
 import uuid
 
+from app import models
+
 
 def test_create_post(authorized_client, test_blogs):
     response = authorized_client.post(
@@ -45,11 +47,15 @@ def test_create_post_rejects_missing_blog(authorized_client):
     assert response.status_code == 404
 
 
-def test_get_visible_posts_returns_only_published_posts(client, test_posts):
-    response = client.get("/posts/public")
-
-    assert response.status_code == 200
-    assert len(response.json()) == 2
+def test_get_visible_posts_returns_only_published_posts(client, test_posts, session):
+    res = client.get("/posts/public")
+    assert res.status_code == 200
+    assert len(res.json()) == 2
+    published_posts = list(
+        session.query(models.Post).filter(models.Post.published == True).all()
+    )
+    for i in range(len(published_posts)):
+        assert res.json()[i]["title"] == published_posts[i].title
 
 
 def test_get_public_post_hides_unpublished_post(client, test_posts):
@@ -67,6 +73,7 @@ def test_get_my_blog_posts_returns_all_posts(authorized_client, test_blogs, test
 
     assert response.status_code == 200
     assert len(response.json()) == 2
+
     assert {post["title"] for post in response.json()} == {
         "Published post",
         "Draft post",
@@ -80,6 +87,14 @@ def test_read_post_returns_private_post_to_blog_owner(authorized_client, test_po
 
     assert response.status_code == 200
     assert response.json()["title"] == "Draft post"
+
+
+def test_read_post_returns_auth_error(client, test_posts):
+    post_id = str(test_posts[1].post_id)
+
+    res = client.get(f"/posts/{post_id}")
+
+    assert res.status_code == 401
 
 
 def test_update_post_updates_owned_post(authorized_client, test_posts):
