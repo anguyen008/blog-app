@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 from uuid import UUID, uuid4
 import jwt
 import pytest
-from fastapi import HTTPException, status
+from fastapi import HTTPException
 import pytest
 from app import oauth2, schemas
 from app.utils import hash_password, verify_password
