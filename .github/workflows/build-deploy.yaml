@@ -78,8 +78,7 @@ jobs:
             --parameters 'commands=[
               "set -e",
               "cd /home/blog-app/app/src",
-              "git config --global --add safe.directory /home/blog-app/app/src",
-              "git pull origin main",
+              "git -c safe.directory=/home/blog-app/app/src pull origin main",
               "cd client",
               "npm ci",
               "export VITE_API_URL=https://ink-app-api.duckdns.org",
