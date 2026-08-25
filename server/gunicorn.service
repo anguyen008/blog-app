@@ -1,0 +1,14 @@
+[Unit]
+Desciption=Backend fastapi deployment
+After=network.target
+
+[Service]
+User=blog-app
+Group=blog-app
+WorkingDirectory=/home/blog-app/app/src/server
+Environment="PATH=/home/blog-app/app/venv/bin"
+EnvironmentFile=/home/blog-app/.env
+ExecStart=/home/blog-app/app/venv/bin/gunicorn -w 4 -k uvicorn.workers.UvicornWorker app.main:app --bind 0.0.0.0:8000
+
+[Install]
+WantedBy=multi-user.target

@@ -21,9 +21,7 @@ def read_root():
     return {"status": "healthy"}
 
 
-origins = [
-    "http://localhost:5173",
-]
+origins = ["http://localhost:5173", "https://ink-app.duckdns.org"]
 
 # Add CORS middleware
 app.add_middleware(

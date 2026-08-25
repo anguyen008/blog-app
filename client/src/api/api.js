@@ -8,7 +8,7 @@
 import axios from 'axios';
 
 // Base URL for backend API (env variable or hardcoded for development)
-const backendUrl = 'http://localhost:8000';
+const backendUrl = import.meta.env.VITE_API_URL || "https://ink-app-api.duckdns.org";
 
 
 export const api = axios.create({ baseURL: backendUrl, withCredentials: true })
