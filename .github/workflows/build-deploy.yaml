@@ -58,7 +58,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: deployment
-    needs: test-backend
+    needs: build-backend
     env:
       AWS_REGION: ${{secrets.AWS_REGION}}
       EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
