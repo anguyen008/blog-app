@@ -59,18 +59,14 @@ jobs:
     runs-on: ubuntu-latest
     environment: deployment
     needs: build-backend
-    env:
-      AWS_REGION: ${{secrets.AWS_REGION}}
-      EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
-      VITE_API_URL: ${{vars.VITE_API_URL}}
-
     steps:
       - name: Configure AWS credentials using OIDC
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE }}
           aws-region: ${{ secrets.AWS_REGION }}
-      - name: Deploy directly to EC2
+
+      - name: Deploy directly to EC2 using SSM
         run: |
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$EC2_INSTANCE_ID" \
