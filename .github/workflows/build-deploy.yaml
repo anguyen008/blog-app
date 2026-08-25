@@ -62,7 +62,6 @@ jobs:
     env:
       AWS_REGION: ${{secrets.AWS_REGION}}
       EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
-      VITE_API_URL: ${{vars.VITE_API_URL}}
 
     steps:
       - name: Configure AWS credentials using OIDC
@@ -82,7 +81,7 @@ jobs:
               "git pull origin main",
               "cd client",
               "npm ci",
-              "export VITE_API_URL= $VITE_API_URL,
+              "export VITE_API_URL="ink-app-api.duckdns.org"
               "rm -rf dist",
               "npm run build",
               "sudo mkdir -p /var/www/ink-frontend",
