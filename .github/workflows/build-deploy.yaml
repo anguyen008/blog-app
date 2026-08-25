@@ -81,7 +81,7 @@ jobs:
               "git pull origin main",
               "cd client",
               "npm ci",
-              "export VITE_API_URL="ink-app-api.duckdns.org"
+              "export VITE_API_URL="https://ink-app-api.duckdns.org"
               "rm -rf dist",
               "npm run build",
               "sudo mkdir -p /var/www/ink-frontend",
