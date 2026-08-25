@@ -77,7 +77,9 @@ jobs:
             --comment "Deploy Ink application using Github Actions" \
             --parameters 'commands=[
               "set -e",
+              "sudo su - blog-app",
               "cd /home/blog-app/app/src",
+              "git config --global --add safe.directory /home/blog-app/app/src",
               "git pull origin main",
               "cd client",
               "npm ci",
