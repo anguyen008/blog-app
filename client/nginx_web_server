@@ -1,0 +1,37 @@
+server {
+
+    server_name ink-app.duckdns.org www.ink-app.duckdns.org;
+
+    root /var/www/ink-frontend;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    listen 443 ssl; # managed by Certbot
+    listen [::]:443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/ink-app.duckdns.org/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/ink-app.duckdns.org/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+
+}
+server {
+    if ($host = www.ink-app.duckdns.org) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    if ($host = ink-app.duckdns.org) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    listen 80;
+    listen [::]:80;
+
+    server_name ink-app.duckdns.org www.ink-app.duckdns.org;
+    return 404; # managed by Certbot
+}

@@ -95,8 +95,6 @@ jobs:
             --query "Command.CommandId" \
             --output text)
 
-          echo "SSM command ID: $COMMAND_ID"
-
           aws ssm wait command-executed \
           --command-id "$COMMAND_ID" \
           --instance-id "$EC2_INSTANCE_ID"
