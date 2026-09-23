@@ -64,6 +64,7 @@ class BlogBase(BaseModel):
     title: str
     tagline: str | None = None
     about: str | None = None
+    is_published: bool = False
 
 
 class BlogCreate(BlogBase):
@@ -79,9 +80,9 @@ class BlogResponse(BlogBase):
     blog_id: uuid.UUID
     created_at: datetime
     number_of_posts: int
+    number_of_published_posts: int
     author: UserResponse
     updated_at: datetime
-    number_of_published_posts: int
 
 
 class PostBase(BaseModel):

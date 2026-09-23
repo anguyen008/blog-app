@@ -4,30 +4,45 @@ from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import update, delete
 from ..database import get_db
 import uuid
-from typing import List
+from typing import List, Optional
 
 # Router groups blog endpoints with /blogs prefix
 router = APIRouter(prefix="/blogs", tags=["Blogs"])
 
 
-@router.get("/", response_model=List[schemas.BlogResponse])
-def get_blogs(db: Session = Depends(get_db)):
+@router.get("/public", response_model=List[schemas.BlogResponse])
+def get_public_blogs(
+    db: Session = Depends(get_db),
+    user_id: Optional[uuid.UUID] = None,
+):
     """Retrieve all blogs. Demonstrates: ORM query, response model serialization"""
-    blogs = db.query(models.Blog).options(joinedload(models.Blog.author)).all()
+    query = (
+        db.query(models.Blog)
+        .options(joinedload(models.Blog.author))
+        .filter(models.Blog.is_published == True)
+    )
+
+    if user_id is not None:
+        query = query.filter(models.Blog.author_id == user_id)
+        if query is None:
+            raise HTTPException(
+                status_code=404, detail=f"User with uuid {user_id} not found"
+            )
+
+    blogs = query.all()
     return blogs
 
 
-@router.get("/{blog_id}/public", response_model=schemas.BlogResponse)
-def read_blog(
+@router.get("/public/{blog_id}", response_model=schemas.BlogResponse)
+def get_a_public_blog(
     blog_id: uuid.UUID,
     db: Session = Depends(get_db),
 ):
-    """Retrieve specific blog by ID publicly. Demonstrates ORM query"""
-
+    """Retrieve a single blog by ID. Demonstrates: ORM query, response model serialization"""
     blog = (
         db.query(models.Blog)
         .options(joinedload(models.Blog.author))
-        .filter(models.Blog.blog_id == blog_id)
+        .filter(models.Blog.blog_id == blog_id, models.Blog.is_published == True)
         .first()
     )
     if blog is None:
@@ -37,24 +52,50 @@ def read_blog(
     return blog
 
 
-@router.get("/{user_id}/user", response_model=List[schemas.BlogResponse])
+@router.get("/private", response_model=List[schemas.BlogResponse])
 def get_user_blogs(
-    user_id: uuid.UUID,
     db: Session = Depends(get_db),
+    current_user: schemas.TokenData = Depends(oauth2.get_current_user),
 ):
-    """Retrieve all blogs by user id"""
-
-    blogs = (
+    """Retrieve all private blogs for the authenticated user."""
+    query = (
         db.query(models.Blog)
         .options(joinedload(models.Blog.author))
-        .filter(models.Blog.author_id == user_id)
-        .all()
-    )
-    if blogs is None:
-        raise HTTPException(
-            status_code=404, detail=f"Blogs with uuid {user_id} not found"
+        .filter(
+            models.Blog.author_id == current_user.user_id,
         )
+    )
+    if query is None:
+        raise HTTPException(
+            status_code=404, detail=f"User with uuid {current_user.user_id} not found"
+        )
+    blogs = query.all()
     return blogs
+
+
+@router.get("/private/{blog_id}", response_model=schemas.BlogResponse)
+def get_a_private_blog(
+    blog_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: schemas.TokenData = Depends(oauth2.get_current_user),
+):
+    """Retrieve a single private blog by ID."""
+    blog = (
+        db.query(models.Blog)
+        .options(joinedload(models.Blog.author))
+        .filter(models.Blog.blog_id == blog_id)
+        .first()
+    )
+
+    if blog is None:
+        raise HTTPException(
+            status_code=404, detail=f"Blog with uuid {blog_id} not found"
+        )
+    print(blog.author_id)
+    if str(blog.author_id) != str(current_user.user_id):
+        raise HTTPException(status_code=403, detail="Not authorized to view this blog")
+
+    return blog
 
 
 @router.post(
