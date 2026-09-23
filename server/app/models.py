@@ -63,6 +63,7 @@ class Blog(Base):
         server_default=text("now()"),
         onupdate=text("now()"),
     )
+    is_published = Column(Boolean, nullable=False, default=False)
 
     author = relationship("User", backref="blogs")  # ORM relationship to Users
 
